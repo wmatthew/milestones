@@ -22,16 +22,20 @@ document.getElementById("check_evens").onchange = updateResults;
 updateResults();
 
 function updateResults() {
-  var odds = document.getElementById("check_odds").checked;
-  var evens = document.getElementById("check_evens").checked;
+  var hide_odds = !document.getElementById("check_odds").checked;
+  var hide_evens = !document.getElementById("check_evens").checked;
 
 	console.log("Updating Results");
 	for (result of results) {
     result.style.display = "block";
-    if (!odds && res.value % 2 == 1) {
+
+    var current_is_odd = res.value % 2 == 1;
+    if (hide_odds && current_is_odd) {
       result.style.display = "none";
     }
-    if (!evens && res.value % 2 == 0) {
+
+    var current_is_even = res.value % 2 == 0;
+    if (hide_evens && current_is_even) {
       result.style.display = "none";
     }
 	}
