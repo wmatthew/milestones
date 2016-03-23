@@ -15,8 +15,8 @@ for (var i=1; i<=10; i++) {
 }
 
 // Wire up the inputs
-document.getElementById("check_odds").onchange=updateResults();
-document.getElementById("check_evens").onchange=updateResults();
+document.getElementById("check_odds").onchange = updateResults;
+document.getElementById("check_evens").onchange = updateResults;
 
 // Initial Update
 updateResults();
