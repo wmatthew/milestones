@@ -1,5 +1,3 @@
-console.log("scale.fix.js loaded.");
-
 var metas = document.getElementsByTagName('meta');
 var i;
 if (navigator.userAgent.match(/iPhone/i)) {
