@@ -1,1 +1,1 @@
-requirejs(["loadResults"]);
+requirejs(['loadResults']);

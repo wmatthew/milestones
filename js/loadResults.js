@@ -1,5 +1,5 @@
 // Imports
-// var Milestone = require('./Milestone.js').Milestone;
+var Milestone = require(['js/Milestone.js']).Milestone;
 
 // Set things up
 var startDate = new Date(1983, 4, 5); // TODO - don't hardcode
@@ -44,15 +44,11 @@ function loadDummyData() {
   for (size of sizes) {
     for (animal of animals) {
       for (color of colors) {
-        // var Milestone = new Milestone(startDate, time_unit, time_number, blank_html_element);
         var res = document.createElement("p");
-        var text = document.createTextNode([size, color, animal].join(' '));
-        res.appendChild(text);
-        res.size = size;
-        res.animal = animal;
-        res.color = color;
-        results.push(res);
+        var stone = new Milestone(startDate, res, size, color, animal);
+        stone.fill_in_html_element();
         resultsContainer.appendChild(res);        
+        results.push(stone);
       }
     }
   }
