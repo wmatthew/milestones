@@ -37,8 +37,8 @@ function updateResults() {
 }
 
 function loadDummyData() {
-  var sizes = ['small', 'big'];
-  var animals = ['cat', 'dog', 'mouse'];
+  var sizes = ['small', 'big', 'gigantic'];
+  var animals = ['cat', 'dog', 'mouse', 'horse'];
   var colors = ['red', 'green', 'blue'];
 
   for (size of sizes) {
@@ -46,7 +46,7 @@ function loadDummyData() {
       for (color of colors) {
         // var Milestone = new Milestone(startDate, time_unit, time_number, blank_html_element);
         var res = document.createElement("p");
-        var text = document.createTextNode([size, color, animal].join());
+        var text = document.createTextNode([size, color, animal].join(' '));
         res.appendChild(text);
         res.size = size;
         res.animal = animal;
