@@ -1,4 +1,9 @@
+// Imports
+var Milestone = require('./Milestone.js').Milestone;
+
 // Set things up
+var startDate = new Date(1983, 4, 5); // TODO - don't hardcode
+
 var resultsContainer = document.getElementById("results_container");
 var results = [];
 
@@ -31,6 +36,8 @@ function updateResults() {
 
 function loadDummyData() {
   for (var i=1; i<=10; i++) {
+    var Milestone = new Milestone(startDate, time_unit, time_number, blank_html_element);
+
   	var res = document.createElement("p");
   	var text = document.createTextNode("Result #" + i);
   	res.appendChild(text);
