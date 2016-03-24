@@ -10,40 +10,51 @@ var results = [];
 function updateResults() {
   console.log("Updating Results");
 
-  var hide_odds = !document.getElementById("check_odds").checked;
-  var hide_evens = !document.getElementById("check_evens").checked;
-  var hide_small = !document.getElementById("check_small").checked;
+  var hide_cats = !document.getElementById("check_cats").checked;
+  var hide_dogs = !document.getElementById("check_dogs").checked;
+  var hide_red  = !document.getElementById("check_red").checked;
+  var hide_blue = !document.getElementById("check_blue").checked;
 
   for (result of results) {
     result.style.display = "block";
 
-    var current_is_odd = result.value % 2 == 1;
-    if (hide_odds && current_is_odd) {
+    if (hide_cats && result.animal == 'cat') {
       result.style.display = "none";
     }
 
-    var current_is_even = result.value % 2 == 0;
-    if (hide_evens && current_is_even) {
+    if (hide_dogs && result.animal == 'dog') {
       result.style.display = "none";
     }
 
-    var current_is_small = result.value < 5;
-    if (hide_small && current_is_small) {
+    if (hide_red && result.color == 'red') {
+      result.style.display = "none";
+    }
+
+    if (hide_blue && result.color == 'blue') {
       result.style.display = "none";
     }
   }
 }
 
 function loadDummyData() {
-  for (var i=1; i<=10; i++) {
-    // var Milestone = new Milestone(startDate, time_unit, time_number, blank_html_element);
+  var sizes = ['small', 'big'];
+  var animals = ['cat', 'dog', 'mouse'];
+  var colors = ['red', 'green', 'blue'];
 
-  	var res = document.createElement("p");
-  	var text = document.createTextNode("Result #" + i);
-  	res.appendChild(text);
-  	res.value = i;
-  	results.push(res);
-  	resultsContainer.appendChild(res);
+  for (size of sizes) {
+    for (animal of animals) {
+      for (color of colors) {
+        // var Milestone = new Milestone(startDate, time_unit, time_number, blank_html_element);
+        var res = document.createElement("p");
+        var text = document.createTextNode([size, color, animal].join());
+        res.appendChild(text);
+        res.size = size;
+        res.animal = animal;
+        res.color = color;
+        results.push(res);
+        resultsContainer.appendChild(res);        
+      }
+    }
   }
 }
 
