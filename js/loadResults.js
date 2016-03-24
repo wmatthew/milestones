@@ -9,39 +9,25 @@ define(function(require) {
   var resultsContainer = document.getElementById("results_container");
   var results = [];
 
+  var sizes = ['small', 'big', 'giant'];
+  var animals = ['cat', 'horse', 'dragon'];
+  var colors = ['red', 'blue'];
+
+  var all_checkboxes = [];
+
   function updateResults() {
-    console.log("Updating Results");
-
-    var hide_cats = !document.getElementById("check_cats").checked;
-    var hide_dogs = !document.getElementById("check_dogs").checked;
-    var hide_red  = !document.getElementById("check_red").checked;
-    var hide_blue = !document.getElementById("check_blue").checked;
-
     for (result of results) {
       result.set_visible(true);
-
-      if (hide_cats && result.animal === 'cat') {
-        result.set_visible(false);
-      }
-
-      if (hide_dogs && result.animal === 'dog') {
-        result.set_visible(false);
-      }
-
-      if (hide_red && result.color === 'red') {
-        result.set_visible(false);
-      }
-
-      if (hide_blue && result.color === 'blue') {
-        result.set_visible(false);
+      for (checkbox of all_checkboxes) {
+        if (!checkbox.checked && checkbox.testing_function(result)) {
+          result.set_visible(false);
+        }
       }
     }
+    console.log("Results updated.");
   }
 
   function loadDummyData() {
-    var sizes = ['small', 'big', 'gigantic'];
-    var animals = ['cat', 'dog', 'mouse', 'horse'];
-    var colors = ['red', 'green', 'blue'];
 
     for (size of sizes) {
       for (animal of animals) {
@@ -56,10 +42,45 @@ define(function(require) {
   }
 
   function wireUpInputs() {
-    document.getElementById("check_cats").onchange = updateResults;
-    document.getElementById("check_dogs").onchange = updateResults;
-    document.getElementById("check_red").onchange = updateResults;
-    document.getElementById("check_blue").onchange = updateResults;
+    var panel = document.getElementById("control_panel");
+
+    function addSubpanel(heading, options, test_function) {
+      var subpanel = document.createElement("div");
+      panel.appendChild(subpanel);
+
+      var head = document.createElement("h4");
+      head.innerHTML = heading;
+      subpanel.appendChild(head);
+
+      for (option of options) {
+        var checkbox = document.createElement("input");
+        checkbox.type = "checkbox";
+        checkbox.checked = true;
+        checkbox.onchange = updateResults;
+        checkbox.testing_function = test_function.bind(undefined, option);
+        subpanel.appendChild(checkbox);
+        all_checkboxes.push(checkbox);
+
+        var label = document.createElement("span");
+        label.innerHTML = option;
+        subpanel.appendChild(label);
+
+        var br = document.createElement("br");
+        subpanel.appendChild(br);
+      }
+    }
+
+    addSubpanel("Size", sizes, function(size, stone) {
+      return stone.size === size;
+    });
+
+    addSubpanel("Animal", animals, function(animal, stone) {
+      return stone.animal === animal;
+    });
+
+    addSubpanel("Color", colors, function(color, stone) {
+      return stone.color === color;
+    });
   }
 
   wireUpInputs();
