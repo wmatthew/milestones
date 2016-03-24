@@ -1,1 +1,1 @@
-require("loadResults.js");
+requirejs(["loadResults"]);
