@@ -59,9 +59,10 @@ function loadDummyData() {
 }
 
 function wireUpInputs() {
-  document.getElementById("check_odds").onchange = updateResults;
-  document.getElementById("check_evens").onchange = updateResults;
-  document.getElementById("check_small").onchange = updateResults;
+  document.getElementById("check_cats").onchange = updateResults;
+  document.getElementById("check_dogs").onchange = updateResults;
+  document.getElementById("check_red").onchange = updateResults;
+  document.getElementById("check_blue").onchange = updateResults;
 }
 
 wireUpInputs();
