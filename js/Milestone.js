@@ -212,7 +212,7 @@ define(function() {
 
   // TODO: use this?
 	Milestone.Special = {
-		PI: {text: 'Pi', value: Math.PI, weight: 10}
+		PI: {text: 'Pi', value: Math.PI, weight: 10},
 		666: {text: '666', value: 666, weight: 10}
 	}
 
