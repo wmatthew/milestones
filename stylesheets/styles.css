@@ -31,6 +31,12 @@ h3, h4, h5, h6 {
   color:#494949;
 }
 
+a.inactive {
+  color:#000;
+  text-decoration:none;
+  font-weight: 500;
+}
+
 a {
   color:#39c;
   text-decoration:none;

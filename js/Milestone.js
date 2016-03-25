@@ -5,12 +5,13 @@ define(function() {
   var MSECS_PER_DAY = 24*60*60*1000;
   //var dateFormat2 = require(['lib/date.format']);
 
-	function Milestone(start_date, blank_html_element, time_unit, base_unit, time_value) {
+	function Milestone(start_date, blank_html_element, time_unit, base_unit, time_value, direction_value) {
 	  this.start_date = start_date;
 	  this.html_element = blank_html_element;
 	  this.base_unit = base_unit;
 	  this.time_unit = time_unit;
 	  this.time_value = time_value;
+	  this.direction_value = direction_value;
 
 	  this.determine_end_date();
 	  this.determine_weight();
@@ -32,10 +33,11 @@ define(function() {
       var pluralizedUnits = this.time_unit.text + ((this.time_value.value == 1) ? '' : 's');
       var endTime = dateFormat(this.end_date, "h:MMtt");
 
-      var displayValue = (this.base_unit == Milestone.BaseUnit.TEN) ? this.time_value.text : this.rawValue;
+      var displayValue = (this.base_unit == Milestone.BaseUnit.TEN) ? this.time_value.text : Math.abs(this.rawValue);
+      var displayDirection = this.direction_value == Milestone.Direction.AFTER ? 'since' : 'until';
 
 			var text = document.createTextNode(
-				[endTime+":", displayValue, pluralizedUnits, "after ", dateFormat(this.start_date.value, "mmm dS, yyyy")].join(' ')
+				[endTime+":", displayValue, pluralizedUnits, displayDirection, this.start_date.shortLabel].join(' ')
 				);
 			this.html_element.appendChild(text);
 
@@ -68,7 +70,7 @@ define(function() {
     },
 
 		determine_end_date: function() {
-  		this.rawValue = Math.pow(this.base_unit.value, this.time_value.exponent);
+  		this.rawValue = Math.pow(this.base_unit.value, this.time_value.exponent) * this.direction_value.value;
 
 			if (this.time_unit == Milestone.TimeUnit.MONTHS) {
 				// special case: need to calculate this.end_date a different way.
@@ -227,6 +229,11 @@ define(function() {
 		666: {text: '666', value: 666, weight: 10}
 	}
 
+	Milestone.Direction = {
+		BEFORE: {text: 'before', value: -1, weight: 0},
+		AFTER:  {text: 'after',  value: 1,  weight: 0}
+	}
+
   function getValues(hash) {
     return Object.keys(hash).map(function (v) {return hash[v];});
   }
@@ -235,6 +242,7 @@ define(function() {
 	Milestone.TimeUnitValues = getValues(Milestone.TimeUnit);
 	Milestone.BaseUnitValues = getValues(Milestone.BaseUnit);
 	Milestone.EraValues = getValues(Milestone.Era);
+	Milestone.DirectionValues = getValues(Milestone.Direction);
 
 	return Milestone;
 });
