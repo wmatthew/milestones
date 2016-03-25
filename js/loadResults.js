@@ -7,6 +7,7 @@ define(function(require) {
   var startDate = getStartDate();
 
   var resultsContainer = document.getElementById("results_container");
+  var resultCount = document.getElementById("result_count");
   var results = [];
 
   var all_checkboxes = [];
@@ -29,6 +30,7 @@ define(function(require) {
         }
       }
     }
+    resultCount.textContent = results.length + " results";
     console.log("Results updated.");
   }
 
@@ -115,16 +117,16 @@ define(function(require) {
       return stone.start_date === start_date;
     });
 
+    addSubpanel("Number", Milestone.TimeValueValues, function(time_value, stone) {
+      return stone.time_value === time_value;
+    });
+
     addSubpanel("Unit", Milestone.TimeUnitValues, function(time_unit, stone) {
       return stone.time_unit === time_unit;
     });
 
     addSubpanel("Base", Milestone.BaseUnitValues, function(base_unit, stone) {
       return stone.base_unit === base_unit;
-    });
-
-    addSubpanel("Time Value", Milestone.TimeValueValues, function(time_value, stone) {
-      return stone.time_value === time_value;
     });
 
     addSubpanel("Milestone", Milestone.EraValues, function(era, stone) {

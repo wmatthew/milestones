@@ -34,7 +34,9 @@ define(function() {
 
       var displayValue = (this.base_unit == Milestone.BaseUnit.TEN) ? this.time_value.text : this.rawValue;
 
-			var text = document.createTextNode([endTime+":", displayValue, pluralizedUnits, "after ", dateFormat(this.start_date.value, "mmm dS, yyyy")].join(' '));
+			var text = document.createTextNode(
+				[endTime+":", displayValue, pluralizedUnits, "after ", dateFormat(this.start_date.value, "mmm dS, yyyy")].join(' ')
+				);
 			this.html_element.appendChild(text);
 
       if (this.base_unit !== Milestone.BaseUnit.TEN) {
@@ -45,9 +47,6 @@ define(function() {
 
 			//var bonusText = document.createTextNode("+" + this.weight);
 			//this.html_element.appendChild(bonusText);
-
-			//var soonBonusText = document.createTextNode("+" + this.soonBonus.toPrecision(2));
-			//this.html_element.appendChild(soonBonusText);
 		},
 
     determine_weight: function() {
@@ -64,8 +63,8 @@ define(function() {
     		soonBonus = 100 / Math.log(soonBonus);
     	}
 
-      this.soonBonus = soonBonus;
-    	this.weight = this.time_value.weight + this.time_unit.weight + this.base_unit.weight + soonBonus;
+    	this.weight = this.time_value.weight + this.time_unit.weight + this.base_unit.weight;
+    	this.weight += soonBonus;
     },
 
 		determine_end_date: function() {
@@ -122,6 +121,18 @@ define(function() {
 			value: 1000,
 			exponent: 3,
 			weight: 8
+		},
+		TEN_THOUSAND : {
+			text: 'ten thousand',
+			value: 10000,
+			exponent: 4,
+			weight: 4
+		},
+		ONE_HUNDRED_THOUSAND : {
+			text: 'one hundred thousand',
+			value: 100000,
+			exponent: 5,
+			weight: 4
 		},
 		MILLION : {
 			text: 'one million',
