@@ -9,10 +9,6 @@ define(function(require) {
   var resultsContainer = document.getElementById("results_container");
   var results = [];
 
-  var sizes = ['small', 'big', 'giant'];
-  var animals = ['cat', 'horse', 'dragon'];
-  var colors = ['red', 'blue'];
-
   var all_checkboxes = [];
 
   function updateResults() {
@@ -28,12 +24,11 @@ define(function(require) {
   }
 
   function loadDummyData() {
-
-    for (size of sizes) {
-      for (animal of animals) {
-        for (color of colors) {
+    for (time_value of Milestone.TimeValueValues) {
+      for (time_unit of Milestone.TimeUnitValues) {
+        for (base_unit of Milestone.BaseUnitValues) {
           var res = document.createElement("p");
-          var stone = new Milestone(startDate, res, size, color, animal);
+          var stone = new Milestone(startDate, res, time_unit, base_unit, time_value);
           resultsContainer.appendChild(res);        
           results.push(stone);
         }
@@ -65,21 +60,24 @@ define(function(require) {
         label.innerHTML = option;
         subpanel.appendChild(label);
 
-        var br = document.createElement("br");
-        subpanel.appendChild(br);
+        subpanel.appendChild(document.createElement("br"));
       }
     }
 
-    addSubpanel("Size", sizes, function(size, stone) {
-      return stone.size === size;
+    addSubpanel("Start Date", [startDate], function(start_date, stone) {
+      return stone.start_date === start_date;
     });
 
-    addSubpanel("Animal", animals, function(animal, stone) {
-      return stone.animal === animal;
+    addSubpanel("Time Unit", Milestone.TimeUnitValues, function(time_unit, stone) {
+      return stone.time_unit === time_unit;
     });
 
-    addSubpanel("Color", colors, function(color, stone) {
-      return stone.color === color;
+    addSubpanel("Base Unit", Milestone.BaseUnitValues, function(base_unit, stone) {
+      return stone.base_unit === base_unit;
+    });
+
+    addSubpanel("Time Value", Milestone.TimeValueValues, function(time_value, stone) {
+      return stone.time_value === time_value;
     });
   }
 
