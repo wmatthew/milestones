@@ -4,12 +4,21 @@ define(function(require) {
   var Milestone = require('Milestone');
 
   // Set things up
-  var startDate = new Date(1983, 4, 5); // TODO - don't hardcode
+  var startDate = getStartDate();
 
   var resultsContainer = document.getElementById("results_container");
   var results = [];
 
   var all_checkboxes = [];
+
+  // TODO
+  function getStartDate() {
+    date = new Date(1982, 8, 6);
+    return {
+      value: date,
+      text: dateFormat(date, "mmmm dS, yyyy")
+    };
+  }
 
   function updateResults() {
     for (result of results) {
@@ -29,11 +38,49 @@ define(function(require) {
         for (base_unit of Milestone.BaseUnitValues) {
           var res = document.createElement("p");
           var stone = new Milestone(startDate, res, time_unit, base_unit, time_value);
-          resultsContainer.appendChild(res);        
-          results.push(stone);
+          if (stone.valid) {
+            resultsContainer.appendChild(res);
+            results.push(stone);
+          }
         }
       }
     }
+  }
+
+  // sort by date or by weight
+  function sortResults(by_date) {
+    while(resultsContainer.firstChild) {
+      resultsContainer.removeChild(resultsContainer.firstChild);
+    }
+    // sort
+    if (by_date) {
+      console.log("Sorting by date.");
+      results.sort(function(a,b) {return a.end_date - b.end_date});
+    } else {
+      console.log("Sorting by best match.");
+      results.sort(function(a,b) {return b.weight - a.weight});
+    }
+
+    for (result of results) {
+      resultsContainer.appendChild(result.html_element);
+    }
+  }
+
+  function wireUpSortLinks() {
+    var date_link = document.createElement("a");
+    var date_label = document.createTextNode("sort by date");
+    date_link.appendChild(date_label);
+    date_link.onclick = function() { sortResults(true); return false; };
+
+    var best_link = document.createElement("a");
+    var best_label = document.createTextNode("sort by best match");
+    best_link.appendChild(best_label);
+    best_link.onclick = function() { sortResults(false); return false; };
+
+    var sortContainer = document.getElementById("sort_links");
+    sortContainer.appendChild(date_link);
+    sortContainer.appendChild(document.createTextNode(" ... "));
+    sortContainer.appendChild(best_link);
   }
 
   function wireUpInputs() {
@@ -51,13 +98,13 @@ define(function(require) {
         var checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = true;
+        if (option.text == "past") checkbox.checked = false;
         checkbox.onchange = updateResults;
         checkbox.testing_function = test_function.bind(undefined, option);
         subpanel.appendChild(checkbox);
         all_checkboxes.push(checkbox);
 
-        var label = document.createElement("span");
-        label.innerHTML = option;
+        var label = document.createTextNode(option.text);
         subpanel.appendChild(label);
 
         subpanel.appendChild(document.createElement("br"));
@@ -68,21 +115,27 @@ define(function(require) {
       return stone.start_date === start_date;
     });
 
-    addSubpanel("Time Unit", Milestone.TimeUnitValues, function(time_unit, stone) {
+    addSubpanel("Unit", Milestone.TimeUnitValues, function(time_unit, stone) {
       return stone.time_unit === time_unit;
     });
 
-    addSubpanel("Base Unit", Milestone.BaseUnitValues, function(base_unit, stone) {
+    addSubpanel("Base", Milestone.BaseUnitValues, function(base_unit, stone) {
       return stone.base_unit === base_unit;
     });
 
     addSubpanel("Time Value", Milestone.TimeValueValues, function(time_value, stone) {
       return stone.time_value === time_value;
     });
+
+    addSubpanel("Milestone", Milestone.EraValues, function(era, stone) {
+      return stone.era === era;
+    });
   }
 
   wireUpInputs();
+  wireUpSortLinks();
   loadDummyData();
-  updateResults();  
+  updateResults();
+  sortResults(true);
 });
 
