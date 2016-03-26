@@ -78,10 +78,10 @@ define(function(require) {
     // Basic numbers (1, 10, 100...) in all bases
     for (direction of FilterConstants.DirectionValues) {
       for (start_date of startDates) {
-        for (time_value of FilterConstants.MagnitudeValues) {
+        for (magnitude of FilterConstants.MagnitudeValues) {
           for (time_unit of FilterConstants.TimeUnitValues) {
             for (base_unit of FilterConstants.BaseValues) {
-              addMilestone(Milestone.baseMilestone(start_date, time_unit, time_value, direction, base_unit));
+              addMilestone(Milestone.baseMilestone(start_date, time_unit, magnitude, direction, base_unit));
             }
           }
         }
@@ -91,10 +91,23 @@ define(function(require) {
     // Repeated digits (111, 222, 333 ...) base 10 only
     for (direction of FilterConstants.DirectionValues) {
       for (start_date of startDates) {
-        for (time_value of FilterConstants.MagnitudeValues) {
+        for (magnitude of FilterConstants.MagnitudeValues) {
           for (time_unit of FilterConstants.TimeUnitValues) {
             for (repeat of FilterConstants.RepeatingDigitValues) {
-              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, time_value, direction, repeat));
+              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
+            }
+          }
+        }
+      }
+    }
+
+    // Two leading digits: (12000, 13000, 14000). base 10 only.
+    for (direction of FilterConstants.DirectionValues) {
+      for (start_date of startDates) {
+        for (magnitude of FilterConstants.MagnitudeValues) {
+          for (time_unit of FilterConstants.TimeUnitValues) {
+            for (prefix of FilterConstants.TwoDigitPrefixValues) {
+              addMilestone(Milestone.prefixMilestone(start_date, time_unit, magnitude, direction, prefix));
             }
           }
         }
@@ -103,7 +116,6 @@ define(function(require) {
 
     // TODO: Possible future additions:
     // One leading digit:  2000, 3000, 4000...
-    // Two leading digits: 12000, 13000, 14000, ...
     // Sequences:          123, 1234, 12345, ...
     // Constants           3.14159, 31.4159, ...
   }
@@ -226,8 +238,8 @@ define(function(require) {
 
     // TODO: add [x] links next to events
 
-    addSubpanel("Number", FilterConstants.MagnitudeValues, function(time_value, stone) {
-      return stone.time_value === time_value;
+    addSubpanel("Number", FilterConstants.MagnitudeValues, function(magnitude, stone) {
+      return stone.magnitude === magnitude;
     });
 
     addSubpanel("Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {

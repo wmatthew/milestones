@@ -5,9 +5,29 @@ define(function(require) {
 
   var MSECS_PER_DAY = 24*60*60*1000; // TODO: defined in 2 places, consolidate
 
-  //FilterConstants.TwoDigitPrefixes
-
-  //function generateTwoDigitPrefixes() {}
+  FilterConstants.TwoDigitPrefix = function() {
+  	var hash = {
+  		NO_PREFIX: {
+  			text: 'no prefix',
+  			value: 0,
+  			weight: 0
+  		}
+  	};
+  	for (var i=1; i<=9; i++) {
+  		for (var j=1; j<=9; j++) {
+  			if (i !== j) {
+  				var num = i + "" + j;
+  				var key = "PREFIX_" + num;
+  				hash[key] = {
+  					text: num,
+  					value: num,
+  					weight: 0
+  				};
+  			}
+  		}
+  	}
+  	return hash;
+  }();
 
 
 	FilterConstants.Direction = {
@@ -168,6 +188,7 @@ define(function(require) {
 	FilterConstants.BaseValues           = values(FilterConstants.Base);
 	FilterConstants.EraValues            = values(FilterConstants.Era);
 	FilterConstants.RepeatingDigitValues = values(FilterConstants.RepeatingDigit);
+	FilterConstants.TwoDigitPrefixValues = values(FilterConstants.TwoDigitPrefix);
 
   return FilterConstants;
 });
