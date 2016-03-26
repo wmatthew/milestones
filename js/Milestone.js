@@ -1,30 +1,51 @@
 // class representing a milestone result
+define(function(require) {
 
-define(function() {
+  var FilterConstants = require('FilterConstants');
+  var MSECS_PER_DAY = 24*60*60*1000; // TODO: defined in 2 places, consolidate
 
-  var MSECS_PER_DAY = 24*60*60*1000;
-  //var dateFormat2 = require(['lib/date.format']);
-
-	function Milestone(start_date, blank_html_element, time_unit, base_unit, time_value, direction_value) {
+	function Milestone(start_date, time_unit, time_value, direction_value, base_unit, repeat) {
 	  this.start_date = start_date;
-	  this.html_element = blank_html_element;
-	  this.base_unit = base_unit;
-	  this.time_unit = time_unit;
-	  this.time_value = time_value;
+	  this.time_unit = time_unit; // seconds, minutes, etc.
+	  this.time_value = time_value; // 1, 10, 100, etc.
 	  this.direction_value = direction_value;
+	  this.base_unit = base_unit;
+	  this.repeat = repeat;
 
 	  this.determine_end_date();
 	  this.determine_weight();
-	  this.fill_in_html_element();
 	}
+
+  Milestone.baseMilestone = function(start_date, time_unit, time_value, direction_value, base_unit) {
+  	if (time_value == FilterConstants.TimeValue.ONE && base_unit !== FilterConstants.Base.TEN) {
+  		return false; // one is the same in all bases
+  	} else {
+  	  var stone = new Milestone(start_date, time_unit, time_value, direction_value, base_unit, FilterConstants.RepeatingDigit.NONE);
+  	  return stone;
+    }
+  }
+
+  Milestone.repeatDigitMilestone = function(start_date, time_unit, time_value, direction_value, repeat) {
+  	if (repeat == FilterConstants.RepeatingDigit.NONE) {
+  		return false; // there's no digit to repeat.
+  	} else if (time_value == FilterConstants.TimeValue.ONE) {
+  		return false; // too short for repeating digits.
+  	} else {
+    	var stone = new Milestone(start_date, time_unit, time_value, direction_value, FilterConstants.Base.TEN, repeat);
+    	return stone;
+  	}
+  }
 
   Milestone.prototype = {
   	constructor: Milestone,
 
-		fill_in_html_element: function() {
+		attachElement: function(element) {
 			if (!this.valid) {
 				return;
 			}
+
+			this.html_element = element;
+
 			var header = document.createElement("h3");
 			var headerText = document.createTextNode(dateFormat(this.end_date, "mmmm dS, yyyy"));
       this.html_element.appendChild(header);
@@ -33,35 +54,46 @@ define(function() {
       var pluralizedUnits = this.time_unit.text + ((this.time_value.value == 1) ? '' : 's');
       var endTime = dateFormat(this.end_date, "h:MMtt");
 
-      var displayValue = (this.base_unit == Milestone.BaseUnit.TEN) ? this.time_value.text : Math.abs(this.rawValue);
-      var displayDirection = this.direction_value == Milestone.Direction.AFTER ? 'since' : 'until';
+      var displayDirection = this.direction_value == FilterConstants.Direction.AFTER ? 'since' : 'until';
 
 			var text = document.createTextNode(
-				[endTime+":", displayValue, pluralizedUnits, displayDirection, this.start_date.shortLabel].join(' ')
-				);
+				[
+				  endTime + ":",
+				  this.displayValue(),
+				  pluralizedUnits,
+				  displayDirection,
+				  this.start_date.shortLabel
+				].join(' ')
+		  );
 			this.html_element.appendChild(text);
 
-      if (this.base_unit !== Milestone.BaseUnit.TEN) {
+      // Add an explanation for non-base-ten numbers
+      if (this.base_unit !== FilterConstants.Base.TEN) {
       	this.html_element.appendChild(document.createElement("br"));
 	      var baseText = document.createTextNode("(" + this.time_value.text + " " + pluralizedUnits + " in " + this.base_unit.text + ")")
 				this.html_element.appendChild(baseText);
       }
-
-			//var bonusText = document.createTextNode("+" + this.weight);
-			//this.html_element.appendChild(bonusText);
 		},
+
+    displayValue: function() {
+    	if (this.base_unit === FilterConstants.Base.TEN && this.repeat === FilterConstants.RepeatingDigit.NONE) {
+				return this.time_value.text; // eg, "one million"
+    	} else {
+    		return Math.abs(this.rawValue); // eg, "77777"
+    	}
+    },
 
     determine_weight: function() {
     	// give bonus for future results that are coming up soon
     	var soonBonus = (this.end_date - Date.now()) / MSECS_PER_DAY;
     	if (soonBonus < 0) {
-    		this.era = Milestone.Era.PAST;
+    		this.era = FilterConstants.Era.PAST;
     		soonBonus = 0;
     	} else if (soonBonus == 0) {
-    		this.era = Milestone.Era.TODAY;
+    		this.era = FilterConstants.Era.TODAY;
     		soonBonus = 100;
     	} else {
-    		this.era = Milestone.Era.FUTURE;
+    		this.era = FilterConstants.Era.FUTURE;
     		soonBonus = 100 / Math.log(soonBonus);
     	}
 
@@ -70,14 +102,21 @@ define(function() {
     },
 
 		determine_end_date: function() {
-  		this.rawValue = Math.pow(this.base_unit.value, this.time_value.exponent) * this.direction_value.value;
+      // Set rawValue
+  		if (this.repeat !== FilterConstants.RepeatingDigit.NONE) {
+  			// eg, 1000
+  			this.rawValue = parseInt(Array(this.time_value.exponent+2).join(this.repeat.value)) * this.direction_value.value;
+  		} else {
+  			// eg, 777777
+    		this.rawValue = Math.pow(this.base_unit.value, this.time_value.exponent) * this.direction_value.value;
+  		}
 
-			if (this.time_unit == Milestone.TimeUnit.MONTHS) {
-				// special case: need to calculate this.end_date a different way.
+			if (this.time_unit == FilterConstants.TimeUnit.MONTHS) {
+				// special case: need to calculate this.end_date by months, not by days.
 				this.end_date = new Date(this.start_date.value);
 				this.end_date.setMonth(this.end_date.getMonth() + this.rawValue);
-			} else if (this.time_unit == Milestone.TimeUnit.YEARS) {
-				// special case: need to calculate this.end_date a different way.
+			} else if (this.time_unit == FilterConstants.TimeUnit.YEARS) {
+				// special case: need to calculate this.end_date by year, not by days.
 				this.end_date = new Date(this.start_date.value);
 				this.end_date.setYear(this.end_date.getFullYear() + this.rawValue);
 			} else {
@@ -87,7 +126,7 @@ define(function() {
 			}
 
 			if (isNaN(this.end_date)) {
-				console.log("NaN!");
+				// console.log("NaN!");
 				this.valid = false;
 			} else {
 				this.valid = true;
@@ -98,151 +137,6 @@ define(function() {
     	this.html_element.style.display = visible ? "block" : "none";
 		}
   }
-
-	Milestone.TimeValue = {
-		ONE : {
-			text: 'one',
-			value: 1,
-			exponent: 0,
-			weight: 10
-		},
-		TEN : {
-			text: 'ten',
-			value: 10,
-			exponent: 1,
-			weight: 5
-		},
-		HUNDRED : {
-		  text: 'one hundred',
-		  value: 100,
-		  exponent: 2,
-		  weight: 5
-		},
-		THOUSAND : {
-			text: 'one thousand',
-			value: 1000,
-			exponent: 3,
-			weight: 8
-		},
-		TEN_THOUSAND : {
-			text: 'ten thousand',
-			value: 10000,
-			exponent: 4,
-			weight: 4
-		},
-		ONE_HUNDRED_THOUSAND : {
-			text: 'one hundred thousand',
-			value: 100000,
-			exponent: 5,
-			weight: 4
-		},
-		MILLION : {
-			text: 'one million',
-			value: 1000000,
-			exponent: 6,
-			weight: 10
-		},
-		BILLION : {
-			text: 'one billion',
-			value: 1000000000,
-			exponent: 9,
-			weight: 10
-		},
-		TRILLION : {
-			text: 'one trillion',
-			value: 1000000000000,
-			exponent: 12,
-			weight: 10
-		},
-	}
-
-  // values are milliseconds
-	Milestone.TimeUnit = {
-		MILLISECONDS : {
-			text: 'millisecond',
-			value: 1 ,
-			weight: 3
-		},
-		SECONDS : {
-			text: 'second',
-			value: 1000 ,
-			weight: 6
-		},
-		MINUTES : {
-			text: 'minute',
-  		value: 60*1000,
-	  	weight: 3
-	  },
-		HOURS : {
-			text: 'hour',
-		  value: 60*60*1000,
-  		weight: 5
-  	},
-		DAYS : {
-			text: 'day',
-	  	value: MSECS_PER_DAY,
-		  weight: 10
-		},
-		WEEKS : {
-			text: 'week',
-  		value: 7*MSECS_PER_DAY,
-	  	weight: 1
-	  },
-		FORTNIGHTS : {
-			text: 'fortnight',
-  		value: 14*MSECS_PER_DAY,
-	  	weight: 0
-	  },
-		MONTHS : {
-			text: 'month',
-  		value: 30*MSECS_PER_DAY,
-	  	weight: 1
-	  },
-		YEARS : {
-			text: 'year',
-  		value: 365*MSECS_PER_DAY,
-	  	weight: 1
-	  }
-	}
-
-	Milestone.BaseUnit = {
-		TWO   : {text: 'base 2 (binary)', value: 2, weight: 3},
-		THREE : {text: 'base 3',  value: 3,  weight: 0},
-		FOUR :  {text: 'base 4',  value: 4,  weight: 0},
-		FIVE :  {text: 'base 5',  value: 5,  weight: 0},
-		SIX  :  {text: 'base 6',  value: 6,  weight: 0},
-		SEVEN:  {text: 'base 7',  value: 7,  weight: 0},
-		EIGHT:  {text: 'base 8',  value: 8,  weight: 0},
-	  NINE :  {text: 'base 9',  value: 9,  weight: 0},
-		TEN  :  {text: 'base 10', value: 10, weight: 10}
-	}
-
-	Milestone.Era = {
-		PAST : {text: 'past', value: -1, weight: 2},
-		TODAY : {text: 'today', value: 0, weight: 10},
-		FUTURE : {text: 'future', value: 1, weight: 8}
-	}
-
-  // TODO: use this?
-	Milestone.Special = {
-		PI: {text: 'Pi', value: Math.PI, weight: 10},
-		666: {text: '666', value: 666, weight: 10}
-	}
-
-	Milestone.Direction = {
-		BEFORE: {text: 'before', value: -1, weight: 0},
-		AFTER:  {text: 'after',  value: 1,  weight: 0}
-	}
-
-  function getValues(hash) {
-    return Object.keys(hash).map(function (v) {return hash[v];});
-  }
-
-	Milestone.TimeValueValues = getValues(Milestone.TimeValue);
-	Milestone.TimeUnitValues = getValues(Milestone.TimeUnit);
-	Milestone.BaseUnitValues = getValues(Milestone.BaseUnit);
-	Milestone.EraValues = getValues(Milestone.Era);
-	Milestone.DirectionValues = getValues(Milestone.Direction);
 
 	return Milestone;
 });

@@ -2,6 +2,8 @@ define(function(require) {
 
   // Imports
   var Milestone = require('Milestone');
+  var FilterConstants = require('FilterConstants');
+  var DateConverter = require('DateConverter');
 
   // Set things up
   var startDates = getStartDates();
@@ -16,76 +18,40 @@ define(function(require) {
     var dateList = [];
 
     function addDate(newDate) {
-      if (!dateList.some(function(x) {return newDate.text == x.text;})) {
-        console.log("adding start date: " + newDate.text);
-        dateList.push(newDate);
-      } else {
+      // Generous dupe policy: allow different labels on same date, different dates w same label.
+      if (dateList.some(function(x) {return newDate.text == x.text;})) {
         console.log("repeat date: " + newDate.text);
+      } else {
+        // console.log("adding start date: " + newDate.text);
+        dateList.push(newDate);
       }
     }
 
     // dates from URL
     var search = window.location.search.substr(1);
-    unpackStartDates(search).map(addDate);
+    DateConverter.unpackStartDates(search).map(addDate);
 
     // dates from localStorage
     if (localStorage) {
       var events = localStorage.getItem('events');
       if (events) {
-        unpackStartDates(events).map(addDate);
+        DateConverter.unpackStartDates(events).map(addDate);
       }
     }
 
+    // Result page doesn't look good empty. Add an event so there's something to see.
     if (dateList.length == 0) {
-      unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
+      DateConverter.unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
     }
 
-    // write anything to localStorage if not there already
     if (localStorage) {
-      localStorage.setItem('events', packStartDates(dateList));
+      localStorage.setItem('events', DateConverter.packStartDates(dateList));
     }
 
     return dateList;
   }
 
-  // takes a query string (no leading question mark); returns array of dates
-  function unpackStartDates(query_str) {
-    var resultDates = [];
-
-    for (chunk of query_str.split("&")) {
-      var pair = chunk.split("=");
-      if (pair.length !== 2) {
-        continue;
-      }
-
-      var label = pair[0].split("_").join(" ");
-      var dateParts = pair[1].split("-"); // YYYY-MM-DD format only
-      var date = new Date(dateParts[0], dateParts[1]-1, dateParts[2]);
-
-      if (isNaN(date)) {
-        console.log("dropping invalid date: " + chunk);
-        continue;
-      }
-
-      var dateText = label + " (" + dateFormat(date, "mmm dS, yyyy") + ")";
-      resultDates.push({
-        value: date,
-        text: dateText,
-        shortLabel: label
-      });
-    }
-
-    return resultDates;
-  }
-
-  function packStartDates(date_arr) {
-    var packed = date_arr.map(function(d) {
-      return d.shortLabel + "=" + dateFormat(d.value, "yyyy-mm-dd");
-    }).join("&");
-    console.log("Packed: " + packed);
-    return packed;
-  }
-
+  // After a filter has been toggled, update results (change visibility of elements)
   function updateResults() {
     for (result of results) {
       result.set_visible(true);
@@ -96,31 +62,59 @@ define(function(require) {
       }
     }
     resultCount.textContent = results.length + " results";
-    console.log("Results updated.");
+    console.log("Result filtering updated.");
   }
 
-  function loadDummyData() {
-    for (direction of Milestone.DirectionValues) {
+  function generateMilestones() {
+    function addMilestone(stone) {
+      if (stone && stone.valid) {
+        var res = document.createElement("p");
+        stone.attachElement(res);
+        resultsContainer.appendChild(res);
+        results.push(stone);
+      }
+    }
+
+    // Basic numbers (1, 10, 100...) in all bases
+    for (direction of FilterConstants.DirectionValues) {
       for (start_date of startDates) {
-        for (time_value of Milestone.TimeValueValues) {
-          for (time_unit of Milestone.TimeUnitValues) {
-            for (base_unit of Milestone.BaseUnitValues) {
-              var res = document.createElement("p");
-              var stone = new Milestone(start_date, res, time_unit, base_unit, time_value, direction);
-              if (stone.valid) {
-                resultsContainer.appendChild(res);
-                results.push(stone);
-              }
+        for (time_value of FilterConstants.TimeValueValues) {
+          for (time_unit of FilterConstants.TimeUnitValues) {
+            for (base_unit of FilterConstants.BaseValues) {
+              addMilestone(Milestone.baseMilestone(start_date, time_unit, time_value, direction, base_unit));
             }
           }
         }
       }
     }
+
+    // Repeated digits (111, 222, 333 ...) base 10 only
+    for (direction of FilterConstants.DirectionValues) {
+      for (start_date of startDates) {
+        for (time_value of FilterConstants.TimeValueValues) {
+          for (time_unit of FilterConstants.TimeUnitValues) {
+            for (repeat of FilterConstants.RepeatingDigitValues) {
+              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, time_value, direction, repeat));
+            }
+          }
+        }
+      }
+    }
+
+    // TODO: Possible future additions:
+    // One leading digit:  2000, 3000, 4000...
+    // Two leading digits: 12000, 13000, 14000, ...
+    // Sequences:          123, 1234, 12345, ...
+    // Constants           3.14159, 31.4159, ...
+  }
+
+  function sortEvent(event) {
+    var src = event.srcElement;
+    sortResults(src);
   }
 
   // sort by date or by weight
-  function sortResults(event) {
-    var src = event.srcElement;
+  function sortResults(src) {
     var by_date = src.by_date;
     src.className = "inactive";
     src.otherLink.className = "";
@@ -152,16 +146,15 @@ define(function(require) {
 
     var date_label = document.createTextNode("sort by date");
     date_link.appendChild(date_label);
-    date_link.onclick = sortResults;
+    date_link.id = "date_link";
+    date_link.onclick = sortEvent;
     date_link.by_date = true;
     date_link.otherLink = best_link;
-    date_link.className = "inactive";
 
     var best_label = document.createTextNode("sort by best match");
     best_link.appendChild(best_label);
-    best_link.onclick = sortResults;
+    best_link.onclick = sortEvent;
     best_link.by_date = false;
-    best_link.style.className += "inactive";
     best_link.otherLink = date_link;
 
     var sortContainer = document.getElementById("sort_links");
@@ -189,6 +182,7 @@ define(function(require) {
 
     function addSubpanel(heading, options, test_function) {
       var subpanel = document.createElement("div");
+      if (heading == "Event") { subpanel.className = "events"; }
       panel.appendChild(subpanel);
 
       var head = document.createElement("h4");
@@ -230,30 +224,37 @@ define(function(require) {
       return stone.start_date === start_date;
     });
 
-    addSubpanel("Number", Milestone.TimeValueValues, function(time_value, stone) {
+    // TODO: add [x] links next to events
+
+    addSubpanel("Number", FilterConstants.TimeValueValues, function(time_value, stone) {
       return stone.time_value === time_value;
     });
 
-    addSubpanel("Unit", Milestone.TimeUnitValues, function(time_unit, stone) {
+    addSubpanel("Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {
       return stone.time_unit === time_unit;
     });
 
-    addSubpanel("Base", Milestone.BaseUnitValues, function(base_unit, stone) {
+    addSubpanel("Base", FilterConstants.BaseValues, function(base_unit, stone) {
       return stone.base_unit === base_unit;
     });
 
-    addSubpanel("Milestone", Milestone.EraValues, function(era, stone) {
+    addSubpanel("Repeat", FilterConstants.RepeatingDigitValues, function(repeat, stone) {
+      return stone.repeat === repeat;
+    });
+
+    addSubpanel("Past / Future", FilterConstants.EraValues, function(era, stone) {
       return stone.era === era;
     });
 
-    addSubpanel("Before / After Event", Milestone.DirectionValues, function(direction, stone) {
+    addSubpanel("Before / After Event", FilterConstants.DirectionValues, function(direction, stone) {
       return stone.direction === direction;
     });
   }
 
   wireUpInputs();
   wireUpSortLinks();
-  loadDummyData();
+  generateMilestones();
   updateResults();
+  sortResults(document.getElementById("date_link"));
 });
 
