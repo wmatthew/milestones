@@ -5,6 +5,11 @@ define(function(require) {
 
   var MSECS_PER_DAY = 24*60*60*1000; // TODO: defined in 2 places, consolidate
 
+  //FilterConstants.TwoDigitPrefixes
+
+  //function generateTwoDigitPrefixes() {}
+
+
 	FilterConstants.Direction = {
 		BEFORE: {text: 'before', value: -1, weight: 0},
 		AFTER:  {text: 'after',  value: 1,  weight: 0}
@@ -23,7 +28,7 @@ define(function(require) {
   	NONE:  {text: 'none', value: 0, weight: 0 } // used for numbers with different digits, like 100
   }
 
-	FilterConstants.TimeValue = {
+	FilterConstants.Magnitude = {
 		ONE : {
 			text: 'one',
 			value: 1,
@@ -153,16 +158,16 @@ define(function(require) {
 		SIX_SIX_SIX: {text: '666', value: 666, weight: 10}
 	}
 
-  function getValues(hash) {
+  function values(hash) {
     return Object.keys(hash).map(function (v) {return hash[v];});
   }
 
-	FilterConstants.DirectionValues = getValues(FilterConstants.Direction);
-	FilterConstants.TimeValueValues = getValues(FilterConstants.TimeValue);
-	FilterConstants.TimeUnitValues = getValues(FilterConstants.TimeUnit);
-	FilterConstants.BaseValues = getValues(FilterConstants.Base);
-	FilterConstants.EraValues = getValues(FilterConstants.Era);
-	FilterConstants.RepeatingDigitValues = getValues(FilterConstants.RepeatingDigit);
+	FilterConstants.DirectionValues      = values(FilterConstants.Direction);
+	FilterConstants.MagnitudeValues      = values(FilterConstants.Magnitude);
+	FilterConstants.TimeUnitValues       = values(FilterConstants.TimeUnit);
+	FilterConstants.BaseValues           = values(FilterConstants.Base);
+	FilterConstants.EraValues            = values(FilterConstants.Era);
+	FilterConstants.RepeatingDigitValues = values(FilterConstants.RepeatingDigit);
 
   return FilterConstants;
 });

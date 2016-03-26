@@ -17,7 +17,7 @@ define(function(require) {
 	}
 
   Milestone.baseMilestone = function(start_date, time_unit, time_value, direction_value, base_unit) {
-  	if (time_value == FilterConstants.TimeValue.ONE && base_unit !== FilterConstants.Base.TEN) {
+  	if (time_value == FilterConstants.Magnitude.ONE && base_unit !== FilterConstants.Base.TEN) {
   		return false; // one is the same in all bases
   	} else {
   	  var stone = new Milestone(start_date, time_unit, time_value, direction_value, base_unit, FilterConstants.RepeatingDigit.NONE);
@@ -28,7 +28,7 @@ define(function(require) {
   Milestone.repeatDigitMilestone = function(start_date, time_unit, time_value, direction_value, repeat) {
   	if (repeat == FilterConstants.RepeatingDigit.NONE) {
   		return false; // there's no digit to repeat.
-  	} else if (time_value == FilterConstants.TimeValue.ONE) {
+  	} else if (time_value == FilterConstants.Magnitude.ONE) {
   		return false; // too short for repeating digits.
   	} else {
     	var stone = new Milestone(start_date, time_unit, time_value, direction_value, FilterConstants.Base.TEN, repeat);
