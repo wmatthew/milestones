@@ -172,23 +172,27 @@ define(function(require) {
     best_link.otherLink = date_link;
 
     var sortContainer = document.getElementById("sort_links");
-    sortContainer.appendChild(document.createTextNode("Sort by: "));
+    sortContainer.appendChild(document.createTextNode("Sort by "));
     sortContainer.appendChild(date_link);
     sortContainer.appendChild(document.createTextNode(" / "));
     sortContainer.appendChild(best_link);
   }
 
   // show or hide one section
-  function toggleOptionSection(event) {
-    var src = event.srcElement;
-    if (src.sectionHidden) {
-      src.sectionHidden = false;
-      src.textContent = "[-] ";
-      src.targetSection.style.display = "block";
+  function toggleOptionSectionEvent(event) {
+    var node = event.srcElement;
+    toggleOptionSection(node);
+  }
+
+  function toggleOptionSection(node) {
+    if (node.sectionHidden) {
+      node.sectionHidden = false;
+      node.textContent = "[-] ";
+      node.targetSection.style.display = "block";
     } else {
-      src.sectionHidden = true;
-      src.textContent = "[+] ";
-      src.targetSection.style.display = "none";
+      node.sectionHidden = true;
+      node.textContent = "[+] ";
+      node.targetSection.style.display = "none";
     }
   }
 
@@ -212,7 +216,8 @@ define(function(require) {
       var collapseLink = document.createElement("a");
       collapseLink.sectionHidden = true;
       collapseLink.textContent = "[+] ";
-      collapseLink.onclick = toggleOptionSection;
+      collapseLink.className = "collapseLink";
+      collapseLink.onclick = toggleOptionSectionEvent;
       collapseLink.targetSection = optionsSection;
 
       head.appendChild(collapseLink);
@@ -279,5 +284,9 @@ define(function(require) {
   generateMilestones();
   updateResults();
   sortResults(document.getElementById("date_link"));
+  // Open the "Events" and "Past/Future" sections
+  toggleOptionSection(document.getElementsByClassName("collapseLink")[0]);
+  toggleOptionSection(document.getElementsByClassName("collapseLink")[1]);
+
 });
 
