@@ -83,14 +83,11 @@ define(function(require) {
       header.appendChild(headerText);
 
       var pluralizedUnits = this.time_unit.text + ((this.magnitude.value == 1) ? '' : 's');
-      var endTime = dateFormat(this.end_date, "h:MMtt");
-
       var displayDirection = this.direction_value == FilterConstants.Direction.AFTER ? 'since' : 'until';
 
 			var text = document.createTextNode(
 				[
-				  endTime + ":",
-				  this.displayValue(),
+				  this.displayTime() + this.displayValue(),
 				  pluralizedUnits,
 				  displayDirection,
 				  this.start_date.shortLabel
@@ -105,6 +102,15 @@ define(function(require) {
 				this.html_element.appendChild(baseText);
       }
 		},
+
+    displayTime: function() {
+    	if (this.time_unit.value < MSECS_PER_DAY) {
+        return dateFormat(this.end_date, "h:MMtt: ");
+    	} else {
+    		// Time is irrelevant for this milestone.
+    		return '';
+      }
+    },
 
     displayValue: function() {
     	if (this.base_unit === FilterConstants.Base.TEN &&

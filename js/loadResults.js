@@ -101,18 +101,20 @@ define(function(require) {
       }
     }
 
+    // TODO: speed load time up, then add this back in.
+    //
     // Two leading digits: (12000, 13000, 14000). base 10 only.
-    for (direction of FilterConstants.DirectionValues) {
-      for (start_date of startDates) {
-        for (magnitude of FilterConstants.MagnitudeValues) {
-          for (time_unit of FilterConstants.TimeUnitValues) {
-            for (prefix of FilterConstants.TwoDigitPrefixValues) {
-              addMilestone(Milestone.prefixMilestone(start_date, time_unit, magnitude, direction, prefix));
-            }
-          }
-        }
-      }
-    }
+    // for (direction of FilterConstants.DirectionValues) {
+    //   for (start_date of startDates) {
+    //     for (magnitude of FilterConstants.MagnitudeValues) {
+    //       for (time_unit of FilterConstants.TimeUnitValues) {
+    //         for (prefix of FilterConstants.TwoDigitPrefixValues) {
+    //           addMilestone(Milestone.prefixMilestone(start_date, time_unit, magnitude, direction, prefix));
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
     // TODO: Possible future additions:
     // One leading digit:  2000, 3000, 4000...
@@ -156,22 +158,23 @@ define(function(require) {
     var date_link = document.createElement("a");
     var best_link = document.createElement("a");
 
-    var date_label = document.createTextNode("sort by date");
+    var date_label = document.createTextNode("date");
     date_link.appendChild(date_label);
     date_link.id = "date_link";
     date_link.onclick = sortEvent;
     date_link.by_date = true;
     date_link.otherLink = best_link;
 
-    var best_label = document.createTextNode("sort by best match");
+    var best_label = document.createTextNode("best match");
     best_link.appendChild(best_label);
     best_link.onclick = sortEvent;
     best_link.by_date = false;
     best_link.otherLink = date_link;
 
     var sortContainer = document.getElementById("sort_links");
+    sortContainer.appendChild(document.createTextNode("Sort by: "));
     sortContainer.appendChild(date_link);
-    sortContainer.appendChild(document.createTextNode(" ... "));
+    sortContainer.appendChild(document.createTextNode(" / "));
     sortContainer.appendChild(best_link);
   }
 
@@ -238,9 +241,17 @@ define(function(require) {
 
     // TODO: add [x] links next to events
 
-    addSubpanel("Number", FilterConstants.MagnitudeValues, function(magnitude, stone) {
-      return stone.magnitude === magnitude;
-    });
+    var dummyNumTypes = [
+      {text: "repeat (eg 7777)"},
+      {text: "round (eg 6700)"},
+      {text: "very round (eg 6000)"},
+      {text: "power of 10 (eg 10000)"}
+    ];
+    addSubpanel("Number", dummyNumTypes, function(a,b){return false;});
+
+    // addSubpanel("Number", FilterConstants.MagnitudeValues, function(magnitude, stone) {
+    //   return stone.magnitude === magnitude;
+    // });
 
     addSubpanel("Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {
       return stone.time_unit === time_unit;
