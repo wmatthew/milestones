@@ -10,6 +10,7 @@ define(function(require) {
 
   var resultsContainer = document.getElementById("results_container");
   var resultCount = document.getElementById("result_count");
+  var resultsHeader = document.getElementById("results_header");
   var results = [];
 
   var all_checkboxes = [];
@@ -287,6 +288,7 @@ define(function(require) {
   // Open the "Events" and "Past/Future" sections
   toggleOptionSection(document.getElementsByClassName("collapseLink")[0]);
   toggleOptionSection(document.getElementsByClassName("collapseLink")[1]);
-
+  // Loading is complete.
+  resultsHeader.textContent="Results";
 });
 
