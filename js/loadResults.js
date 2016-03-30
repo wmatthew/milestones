@@ -275,6 +275,7 @@ define(function(require) {
     // ];
     // addSubpanel("Number", dummyNumTypes, function(a,b){return false;});
 
+    // Rename to number length ? made it a slider?
     // addSubpanel("Number", FilterConstants.MagnitudeValues, function(magnitude, stone) {
     //   return stone.magnitude === magnitude;
     // });
@@ -305,7 +306,7 @@ define(function(require) {
   generateMilestones();
   updateResults();
   sortResults(document.getElementById("date_link"));
-  // Open the "Events" and "Past/Future" sections
+  // Open the first two sections
   toggleOptionSection(document.getElementsByClassName("collapseLink")[0]);
   toggleOptionSection(document.getElementsByClassName("collapseLink")[1]);
   // Loading is complete.

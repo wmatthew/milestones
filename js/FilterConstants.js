@@ -49,60 +49,17 @@ define(function(require) {
   }
 
 	FilterConstants.Magnitude = {
-		ONE : {
-			text: 'one',
-			value: 1,
-			exponent: 0,
-			weight: 10
-		},
-		TEN : {
-			text: 'ten',
-			value: 10,
-			exponent: 1,
-			weight: 5
-		},
-		HUNDRED : {
-		  text: 'one hundred',
-		  value: 100,
-		  exponent: 2,
-		  weight: 5
-		},
-		THOUSAND : {
-			text: 'one thousand',
-			value: 1000,
-			exponent: 3,
-			weight: 8
-		},
-		TEN_THOUSAND : {
-			text: 'ten thousand',
-			value: 10000,
-			exponent: 4,
-			weight: 4
-		},
-		ONE_HUNDRED_THOUSAND : {
-			text: 'one hundred thousand',
-			value: 100000,
-			exponent: 5,
-			weight: 4
-		},
-		MILLION : {
-			text: 'one million',
-			value: 1000000,
-			exponent: 6,
-			weight: 10
-		},
-		BILLION : {
-			text: 'one billion',
-			value: 1000000000,
-			exponent: 9,
-			weight: 10
-		},
-		TRILLION : {
-			text: 'one trillion',
-			value: 1000000000000,
-			exponent: 12,
-			weight: 10
-		},
+		ONE                  : { value: 1,             exponent: 0,  weight: 10, text: 'one' },
+		TEN                  : { value: 10, 			     exponent: 1,  weight: 5,  text: 'ten'	},
+		HUNDRED              : { value: 100,		       exponent: 2,  weight: 5,  text: 'one hundred'	},
+		THOUSAND             : { value: 1000,          exponent: 3,  weight: 8,  text: 'one thousand' },
+		TEN_THOUSAND         : { value: 10000,         exponent: 4,  weight: 4,  text: 'ten thousand'	},
+		ONE_HUNDRED_THOUSAND : { value: 100000,        exponent: 5,  weight: 4,  text: 'one hundred thousand' },
+		MILLION              : { value: 1000000,	     exponent: 6,  weight: 10, text: 'one million' },
+		TEN_MILLION          : { value: 10000000,	     exponent: 7,  weight: 5,  text: 'ten million' },
+		HUNDRED_MILLION      : { value: 100000000,     exponent: 8,  weight: 5,  text: 'one hundred million' },
+		BILLION              : { value: 1000000000,		 exponent: 9,	 weight: 10, text: 'one billion' },
+		TRILLION             : { value: 1000000000000, exponent: 12, weight: 10, text: 'one trillion' }
 	}
 
   // values are milliseconds
@@ -155,7 +112,7 @@ define(function(require) {
 	}
 
 	FilterConstants.Base = {
-		TWO   : {text: 'base 2 (binary)', value: 2, weight: 3},
+		TWO   : {text: 'binary',  value: 2, weight: 3},
 		THREE : {text: 'base 3',  value: 3,  weight: 0},
 		FOUR  : {text: 'base 4',  value: 4,  weight: 0},
 		FIVE  : {text: 'base 5',  value: 5,  weight: 0},
