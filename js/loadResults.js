@@ -237,8 +237,27 @@ define(function(require) {
         var label = document.createTextNode(option.text);
         optionsSection.appendChild(label);
 
+        var onlyLink = document.createElement("a");
+        onlyLink.textContent = "only";
+        onlyLink.className = "onlyLink";
+        onlyLink.onclick = onlyThisOptionHandler;
+        onlyLink.targetSection = optionsSection;
+        onlyLink.targetLink = checkbox;
+        optionsSection.appendChild(onlyLink);
+
         optionsSection.appendChild(document.createElement("br"));
       }
+    }
+
+    function onlyThisOptionHandler(event) {
+      var node = event.srcElement;
+      var checkBoxes = node.targetSection.getElementsByTagName("input");
+      for (var i=0; i<checkBoxes.length; i++) {
+        var child = checkBoxes[i];
+        child.checked = false;
+      }
+      node.targetLink.checked = true;
+      updateResults();
     }
 
     addSubpanel("Event", startDates, function(start_date, stone) {
@@ -247,13 +266,14 @@ define(function(require) {
 
     // TODO: add [x] links next to events
 
-    var dummyNumTypes = [
-      {text: "repeat (eg 7777)"},
-      {text: "round (eg 6700)"},
-      {text: "very round (eg 6000)"},
-      {text: "power of 10 (eg 10000)"}
-    ];
-    addSubpanel("Number", dummyNumTypes, function(a,b){return false;});
+    // Doesn't work yet
+    // var dummyNumTypes = [
+    //   {text: "repeat (eg 7777)"},
+    //   {text: "round (eg 6700)"},
+    //   {text: "very round (eg 6000)"},
+    //   {text: "power of 10 (eg 10000)"}
+    // ];
+    // addSubpanel("Number", dummyNumTypes, function(a,b){return false;});
 
     // addSubpanel("Number", FilterConstants.MagnitudeValues, function(magnitude, stone) {
     //   return stone.magnitude === magnitude;
