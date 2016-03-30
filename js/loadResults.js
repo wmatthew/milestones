@@ -54,6 +54,7 @@ define(function(require) {
 
   // After a filter has been toggled, update results (change visibility of elements)
   function updateResults() {
+    var visible_count = 0;
     for (result of results) {
       result.set_visible(true);
       for (checkbox of all_checkboxes) {
@@ -61,8 +62,14 @@ define(function(require) {
           result.set_visible(false);
         }
       }
+      if (result.is_visible()) visible_count++;
     }
-    resultCount.textContent = results.length + " results";
+
+    if (visible_count === results.length) {
+      resultCount.textContent = "showing all " + results.length + " results";
+    } else {
+      resultCount.textContent = "showing " + visible_count + " of " + results.length + " results";
+    }
     console.log("Result filtering updated.");
   }
 
@@ -221,8 +228,15 @@ define(function(require) {
       collapseLink.onclick = toggleOptionSectionEvent;
       collapseLink.targetSection = optionsSection;
 
+      var allLink = document.createElement("a");
+      allLink.textContent = "all";
+      allLink.className = "allLink";
+      allLink.onclick = checkAllHandler;
+      allLink.targetSection = optionsSection;
+
       head.appendChild(collapseLink);
       head.appendChild(headTitle);
+      head.appendChild(allLink);
 
       for (option of options) {
         var checkbox = document.createElement("input");
@@ -247,6 +261,16 @@ define(function(require) {
 
         optionsSection.appendChild(document.createElement("br"));
       }
+    }
+
+    function checkAllHandler(event) {
+      var node = event.srcElement;
+      var checkBoxes = node.targetSection.getElementsByTagName("input");
+      for (var i=0; i<checkBoxes.length; i++) {
+        var child = checkBoxes[i];
+        child.checked = true;
+      }
+      updateResults();
     }
 
     function onlyThisOptionHandler(event) {

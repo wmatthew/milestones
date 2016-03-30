@@ -31,13 +31,13 @@ h3, h4, h5, h6 {
   color:#494949;
 }
 
-a.onlyLink {
+a.onlyLink, a.allLink {
   margin-left: 5px;
   color: #FFF;
   font-weight: 700;
 }
 
-a.onlyLink:hover{
+a.onlyLink:hover, a.allLink:hover {
   color: #000099;
   font-weight: 700;
   text-decoration: underline;

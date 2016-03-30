@@ -176,9 +176,13 @@ define(function(require) {
 			}
 		},
 
-		set_visible: function(visible) {
-    	this.html_element.style.display = visible ? "block" : "none";
-		}
+    set_visible: function(visible) {
+      this.html_element.style.display = visible ? "block" : "none";
+    },
+
+    is_visible: function() {
+      return this.html_element.style.display === "block";
+    }
   }
 
 	return Milestone;
