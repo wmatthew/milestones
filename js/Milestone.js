@@ -81,7 +81,7 @@ define(function(require) {
 			this.html_element = element;
 
 			this.header = document.createElement("h3");
-			var headerText = document.createTextNode(dateFormat(this.end_date, "mmmm dS, yyyy"));
+			var headerText = document.createTextNode(dateFormat(this.end_date, "mmmm dS, ") + this.displayYear());
       this.html_element.appendChild(this.header);
       this.header.appendChild(headerText);
 
@@ -112,6 +112,19 @@ define(function(require) {
       //   this.html_element.appendChild(baseText);
       // }
 		},
+
+    displayYear: function() {
+      var year = this.end_date.getFullYear();
+      if (year <= 0) {
+        // The year before 1 AD is 1 BC.
+        return (Math.abs(year) + 1) + " BC";
+      } else if (year < 1000) {
+        return year + " AD";
+      } else {
+        return year;
+      }
+
+    },
 
     displayTime: function() {
     	if (this.time_unit.value < MSECS_PER_DAY) {
