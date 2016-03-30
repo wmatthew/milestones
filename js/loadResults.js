@@ -52,17 +52,23 @@ define(function(require) {
     return dateList;
   }
 
-  // After a filter has been toggled, update results (change visibility of elements)
+  // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   function updateResults() {
     var visible_count = 0;
+    //var previous_header_text = "";
     for (result of results) {
       result.set_visible(true);
+      //result.set_header_visible(true);
       for (checkbox of all_checkboxes) {
         if (!checkbox.checked && checkbox.testing_function(result)) {
           result.set_visible(false);
         }
       }
-      if (result.is_visible()) visible_count++;
+      if (result.is_visible()) {
+        visible_count++;
+        //result.set_header_visible(result.header.textContent !== previous_header_text);
+        //previous_header_text = result.header.textContent;
+      }
     }
 
     if (visible_count === results.length) {

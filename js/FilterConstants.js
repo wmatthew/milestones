@@ -59,11 +59,20 @@ define(function(require) {
 		TEN_MILLION          : { value: 10000000,	     exponent: 7,  weight: 5,  text: 'ten million' },
 		HUNDRED_MILLION      : { value: 100000000,     exponent: 8,  weight: 5,  text: 'one hundred million' },
 		BILLION              : { value: 1000000000,		 exponent: 9,	 weight: 10, text: 'one billion' },
+		TEN_BILLION          : { value: 10000000000,   exponent: 10, weight: 4,  text: 'ten billion' },
+		HUNDRED_BILLION      : { value: 100000000000,  exponent: 11, weight: 4,  text: 'one hundred billion' },
 		TRILLION             : { value: 1000000000000, exponent: 12, weight: 10, text: 'one trillion' }
+		// trillion is probably the max needed. 1 trillion msecs = ~31 years, so almost everything is
+		// outside the valid date range (date===NaN) at this point.
 	}
 
   // values are milliseconds
 	FilterConstants.TimeUnit = {
+		MICROSECONDS : {
+			text: 'microsecond',
+			value: 0.001 ,
+			weight: 2
+		},
 		MILLISECONDS : {
 			text: 'millisecond',
 			value: 1 ,
