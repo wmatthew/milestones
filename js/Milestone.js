@@ -4,6 +4,8 @@ define(function(require) {
   var FilterConstants = require('main/FilterConstants');
   var MSECS_PER_DAY = 24*60*60*1000; // TODO: defined in 2 places, consolidate
 
+  // Constructor.
+  // Don't call directly; use methods like baseMilestone, repeatingDigitMilestone, etc.
 	function Milestone(start_date, time_unit, magnitude, direction_value, base_unit, repeat, prefix) {
 	  this.start_date = start_date;
 	  this.time_unit = time_unit; // seconds, minutes, etc.
@@ -53,7 +55,7 @@ define(function(require) {
   	}
   }
 
-  // Create a big round number milestone, like 12,000,000
+  // Create a big round number milestone like 12,000,000
   Milestone.prefixMilestone = function(start_date, time_unit, magnitude, direction, prefix) {
   	if (magnitude == FilterConstants.Magnitude.ONE) {
   		return false; // too short for two-digit prefix.
@@ -198,7 +200,6 @@ define(function(require) {
 			}
 
 			if (isNaN(this.end_date)) {
-				// console.log("NaN!");
 				this.valid = false;
 			} else {
 				this.valid = true;
@@ -211,10 +212,6 @@ define(function(require) {
 
     is_visible: function() {
       return this.html_element.style.display === "block";
-    },
-
-    set_header_visible: function(visible) {
-      this.header.style.display = visible ? "block" : "none";
     }
   }
 

@@ -2,6 +2,7 @@
 require.config({
     paths: {
         'QUnit': '../node_modules/qunitjs/qunit/qunit',
+        'lib': '../lib',
         'main': '..'
     },
     shim: {

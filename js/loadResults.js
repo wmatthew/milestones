@@ -55,10 +55,8 @@ define(function(require) {
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   function updateResults() {
     var visible_count = 0;
-    //var previous_header_text = "";
     for (result of results) {
       result.set_visible(true);
-      //result.set_header_visible(true);
       for (checkbox of all_checkboxes) {
         if (!checkbox.checked && checkbox.testing_function(result)) {
           result.set_visible(false);
@@ -66,8 +64,6 @@ define(function(require) {
       }
       if (result.is_visible()) {
         visible_count++;
-        //result.set_header_visible(result.header.textContent !== previous_header_text);
-        //previous_header_text = result.header.textContent;
       }
     }
 
@@ -291,7 +287,7 @@ define(function(require) {
     }
 
     addSubpanel("Event", startDates, function(start_date, stone) {
-      return stone.start_date === start_date;
+      return stone.start_date.value === start_date.value;
     });
 
     // TODO: add [x] links next to events
@@ -311,35 +307,37 @@ define(function(require) {
     // });
 
     addSubpanel("Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {
-      return stone.time_unit === time_unit;
+      return stone.time_unit.value === time_unit.value;
     });
 
     addSubpanel("Base", FilterConstants.BaseValues, function(base_unit, stone) {
-      return stone.base_unit === base_unit;
+      return stone.base_unit.value === base_unit.value;
     });
 
     addSubpanel("Repeat", FilterConstants.RepeatingDigitValues, function(repeat, stone) {
-      return stone.repeat === repeat;
+      return stone.repeat.value === repeat.value;
     });
 
     addSubpanel("Past / Future", FilterConstants.EraValues, function(era, stone) {
-      return stone.era === era;
+      return stone.era.value === era.value;
     });
 
     addSubpanel("Before / After Event", FilterConstants.DirectionValues, function(direction, stone) {
-      return stone.direction === direction;
+      return stone.direction.value === direction.value;
     });
   }
 
   wireUpInputs();
   wireUpSortLinks();
   generateMilestones();
-  updateResults();
   sortResults(document.getElementById("date_link"));
+  updateResults();
+
   // Open the first two sections
   toggleOptionSection(document.getElementsByClassName("collapseLink")[0]);
   toggleOptionSection(document.getElementsByClassName("collapseLink")[1]);
+
   // Loading is complete.
-  resultsHeader.textContent="Results";
+  resultsHeader.textContent = "Results";
 });
 
