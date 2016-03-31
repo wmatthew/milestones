@@ -1,6 +1,7 @@
 requirejs.config({
 	paths: {
-		lib: 'lib'
+		lib: 'lib',
+		main: '.'
 	}
 });
 

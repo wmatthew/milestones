@@ -1,7 +1,7 @@
 // class representing a milestone result
 define(function(require) {
 
-  var FilterConstants = require('FilterConstants');
+  var FilterConstants = require('main/FilterConstants');
   var MSECS_PER_DAY = 24*60*60*1000; // TODO: defined in 2 places, consolidate
 
 	function Milestone(start_date, time_unit, magnitude, direction_value, base_unit, repeat, prefix) {
