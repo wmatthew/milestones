@@ -9,6 +9,24 @@ define(function(require) {
 
   var MSECS_PER_DAY = 24*60*60*1000; // TODO: defined in 2 places, consolidate
 
+  FilterConstants.OneDigitPrefix = function() {
+  	var hash = {
+  		NO_PREFIX: {
+  			text: 'no prefix',
+  			value: 0,
+  			weight: 0
+  		}
+  	};
+  	for (var i=2; i<=9; i++) {
+			var key = "PREFIX_" + i;
+			hash[key] = {
+				text: i,
+				value: i,
+				weight: 0
+			};
+  	}
+  	return hash;
+  }();
   FilterConstants.TwoDigitPrefix = function() {
   	var hash = {
   		NO_PREFIX: {
@@ -34,10 +52,10 @@ define(function(require) {
   }();
 
   FilterConstants.Kind = {
-  	POWER_OF_TEN: { text: 'power of ten', example: '10000'},
   	REPEAT: { text: 'repeating', example: '7777'},
   	PREFIX_TWO: { text: 'round number', example: '6700'},
   	PREFIX_ONE: { text: 'very round number', example: '6000'},
+  	POWER_OF_TEN: { text: 'power of ten', example: '1000'},
   }
 
 	FilterConstants.Direction = {
@@ -164,6 +182,7 @@ define(function(require) {
 	FilterConstants.BaseValues           = values(FilterConstants.Base);
 	FilterConstants.EraValues            = values(FilterConstants.Era);
 	FilterConstants.RepeatingDigitValues = values(FilterConstants.RepeatingDigit);
+	FilterConstants.OneDigitPrefixValues = values(FilterConstants.OneDigitPrefix);
 	FilterConstants.TwoDigitPrefixValues = values(FilterConstants.TwoDigitPrefix);
 	FilterConstants.KindValues           = values(FilterConstants.Kind);
 

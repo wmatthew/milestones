@@ -64,23 +64,43 @@ define(function(require) {
   }
 
   // Create a big round number milestone like 12,000,000
-  Milestone.prefixMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
-  	if (magnitude === FilterConstants.Magnitude.ONE) {
-  		return false; // too short for two-digit prefix.
+  Milestone.prefixOneMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
+    if (magnitude === FilterConstants.Magnitude.ONE) {
+      return false; // too short for two-digit prefix.
+    } else if (prefix === FilterConstants.OneDigitPrefix.NO_PREFIX) {
+      return false; // need a prefix.
+    } else {
+      var stone = new Milestone(
+        start_date,
+        time_unit,
+        magnitude,
+        direction_value,
+        FilterConstants.Base.TEN,
+        FilterConstants.RepeatingDigit.NONE,
+        prefix,
+        FilterConstants.Kind.PREFIX_ONE);
+      return stone;
+    }
+  }
+
+  // Create a big round number milestone like 12,000,000
+  Milestone.prefixTwoMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
+    if (magnitude === FilterConstants.Magnitude.ONE) {
+      return false; // too short for two-digit prefix.
     } else if (prefix === FilterConstants.TwoDigitPrefix.NO_PREFIX) {
       return false; // need a prefix.
-  	} else {
-	    var stone = new Milestone(
-	    	start_date,
-	    	time_unit,
-	    	magnitude,
-	    	direction_value,
-	    	FilterConstants.Base.TEN,
-	    	FilterConstants.RepeatingDigit.NONE,
-	    	prefix,
+    } else {
+      var stone = new Milestone(
+        start_date,
+        time_unit,
+        magnitude,
+        direction_value,
+        FilterConstants.Base.TEN,
+        FilterConstants.RepeatingDigit.NONE,
+        prefix,
         FilterConstants.Kind.PREFIX_TWO);
-	    return stone;
-	  }
+      return stone;
+    }
   }
 
   Milestone.prototype = {
@@ -193,12 +213,15 @@ define(function(require) {
 		determine_end_date: function() {
       // Set rawValue
       this.rawValue = this.direction_value.value;
-      if (this.prefix !== FilterConstants.TwoDigitPrefix.NO_PREFIX) {
-      	// eg, 12000
-      	this.rawValue *= parseInt(this.prefix.value + Array(this.magnitude.exponent).join('0'));
-      } else if (this.repeat !== FilterConstants.RepeatingDigit.NONE) {
-  			// eg, 7777777
-  			this.rawValue *= parseInt(Array(this.magnitude.exponent+2).join(this.repeat.value));
+      if (this.kind === FilterConstants.Kind.PREFIX_ONE) {
+        // eg, 7000
+        this.rawValue *= parseInt(this.prefix.value + Array(this.magnitude.exponent + 1).join('0'));
+      } else if (this.kind === FilterConstants.Kind.PREFIX_TWO) {
+        // eg, 6700
+        this.rawValue *= parseInt(this.prefix.value + Array(this.magnitude.exponent).join('0'));
+      } else if (this.kind === FilterConstants.Kind.REPEAT) {
+        // eg, 7777
+        this.rawValue *= parseInt(Array(this.magnitude.exponent+2).join(this.repeat.value));
   		} else {
   			// eg, 1000
     		this.rawValue *= Math.pow(this.base_unit.value, this.magnitude.exponent);

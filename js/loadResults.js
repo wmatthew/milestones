@@ -14,6 +14,9 @@ define(function(require) {
   var resultsHeader = document.getElementById("results_header");
   var results = [];
 
+  var htmlDownArrow = "&#9660;";
+  var htmlRightArrow = "&#9654;";
+
   var all_checkboxes = [];
 
   function getStartDates() {
@@ -100,26 +103,28 @@ define(function(require) {
     }
 
     // Repeated digits (111, 222, 333 ...) base 10 only
-    for (var direction of FilterConstants.DirectionValues) {
-      for (var start_date of startDates) {
-        for (var magnitude of FilterConstants.MagnitudeValues) {
-          for (var time_unit of FilterConstants.TimeUnitValues) {
-            for (var repeat of FilterConstants.RepeatingDigitValues) {
-              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
-            }
-          }
-        }
-      }
-    }
+    // for (var direction of FilterConstants.DirectionValues) {
+    //   for (var start_date of startDates) {
+    //     for (var magnitude of FilterConstants.MagnitudeValues) {
+    //       for (var time_unit of FilterConstants.TimeUnitValues) {
+    //         for (var repeat of FilterConstants.RepeatingDigitValues) {
+    //           addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
+    //         }
+    //       }
+    //     }
+    //   }
+    // }
 
-    // TODO: speed load time up, then add this back in.
     // Two leading digits: (12000, 13000, 14000). base 10 only.
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
           for (var time_unit of FilterConstants.TimeUnitValues) {
+            for (var prefix of FilterConstants.OneDigitPrefixValues) {
+              addMilestone(Milestone.prefixOneMilestone(start_date, time_unit, magnitude, direction, prefix));
+            }
             for (var prefix of FilterConstants.TwoDigitPrefixValues) {
-              addMilestone(Milestone.prefixMilestone(start_date, time_unit, magnitude, direction, prefix));
+              addMilestone(Milestone.prefixTwoMilestone(start_date, time_unit, magnitude, direction, prefix));
             }
           }
         }
@@ -188,18 +193,20 @@ define(function(require) {
 
   // show or hide one section
   function toggleOptionSectionEvent(event) {
-    var node = event.srcElement;
+    var node = event.srcElement.arrow;
     toggleOptionSection(node);
+    return false;
   }
 
   function toggleOptionSection(node) {
+    console.log("toggle.");
     if (node.sectionHidden) {
       node.sectionHidden = false;
-      node.textContent = "[-] ";
+      node.innerHTML = htmlDownArrow + " ";
       node.targetSection.style.display = "block";
     } else {
       node.sectionHidden = true;
-      node.textContent = "[+] ";
+      node.innerHTML = htmlRightArrow + " ";
       node.targetSection.style.display = "none";
     }
   }
@@ -207,24 +214,45 @@ define(function(require) {
   function wireUpInputs() {
     var panel = document.getElementById("control_panel");
 
+    // Get the display label to show next to the checkbox.
+    function getLabel(optionList, option) {
+      if (optionList === FilterConstants.KindValues) {
+        return option.text + " (" + option.example+ ")";
+      } else if (optionList === FilterConstants.MagnitudeValues) {
+        if (option.exponent % 3 == 0) {
+          return (option.exponent+1) + " (" + option.text + ")";
+        } else {
+          return (option.exponent+1);
+        }
+      } else {
+        return option.text;
+      }
+    }
+
     function addSubpanel(heading, options, test_function) {
       var subpanel = document.createElement("div");
       if (heading == "Event") { subpanel.className = "events"; }
       panel.appendChild(subpanel);
 
       var head = document.createElement("h4");
-      var headTitle = document.createTextNode(heading);
+      var optionsSection = document.createElement("div");
+      var collapseLink = document.createElement("a");
+
+      var headTitle = document.createElement("span");
+      headTitle.className = "noselect";
+      headTitle.textContent = heading;
+      headTitle.onclick = toggleOptionSectionEvent;
+      headTitle.arrow = collapseLink;
       subpanel.appendChild(head);
 
-      var optionsSection = document.createElement("div");
       optionsSection.className = "optionsSection";
       subpanel.appendChild(optionsSection);
 
-      var collapseLink = document.createElement("a");
       collapseLink.sectionHidden = false;
-      collapseLink.textContent = "[-] ";
-      collapseLink.className = "collapseLink";
+      collapseLink.innerHTML = htmlDownArrow + " ";
+      collapseLink.className = "collapseLink noselect";
       collapseLink.onclick = toggleOptionSectionEvent;
+      collapseLink.arrow = collapseLink;
       collapseLink.targetSection = optionsSection;
 
       var allLink = document.createElement("a");
@@ -247,7 +275,7 @@ define(function(require) {
         optionsSection.appendChild(checkbox);
         all_checkboxes.push(checkbox);
 
-        var label = document.createTextNode(option.text);
+        var label = document.createTextNode(getLabel(options, option));
         optionsSection.appendChild(label);
 
         var onlyLink = document.createElement("a");

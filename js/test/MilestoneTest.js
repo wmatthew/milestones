@@ -42,6 +42,7 @@ define(
 
         // automatically set fields
         equal(stone.repeat, repeat_NONE, 'should not have a repeating digit');
+        equal(stone.kind, FilterConstants.Kind.POWER_OF_TEN, 'should have kind set');
       });
 
       test('Milestone.repeatDigitMilestone (constructor)', function() {
@@ -55,10 +56,11 @@ define(
 
         // automatically set fields
         equal(stone.base_unit, FilterConstants.Base.TEN, 'base_unit should be set to base 10 automatically');
+        equal(stone.kind, FilterConstants.Kind.REPEAT, 'should have kind set');
       });
 
-      test('Milestone.prefixMilestone (constructor)', function() {
-      	var stone = Milestone.prefixMilestone(start_date, time_unit, magnitude, direction_value, prefix);
+      test('Milestone.prefixOneMilestone (constructor)', function() {
+      	var stone = Milestone.prefixOneMilestone(start_date, time_unit, magnitude, direction_value, prefix);
 
         equal(stone.start_date, start_date, 'start_date should be set properly');
         equal(stone.time_unit, time_unit, 'time_unit should be set properly');
@@ -69,6 +71,22 @@ define(
         // automatically set fields
         equal(stone.base_unit, FilterConstants.Base.TEN, 'base_unit should be set to base 10 automatically');
         equal(stone.repeat, repeat_NONE, 'should not have a repeating digit');
+        equal(stone.kind, FilterConstants.Kind.PREFIX_ONE, 'should have kind set');
+      });
+
+      test('Milestone.prefixTwoMilestone (constructor)', function() {
+      	var stone = Milestone.prefixTwoMilestone(start_date, time_unit, magnitude, direction_value, prefix);
+
+        equal(stone.start_date, start_date, 'start_date should be set properly');
+        equal(stone.time_unit, time_unit, 'time_unit should be set properly');
+        equal(stone.magnitude, magnitude, 'magnitude should be set properly');
+        equal(stone.direction_value, direction_value, 'direction_value should be set properly');
+        equal(stone.prefix, prefix, 'prefix should be set properly');
+
+        // automatically set fields
+        equal(stone.base_unit, FilterConstants.Base.TEN, 'base_unit should be set to base 10 automatically');
+        equal(stone.repeat, repeat_NONE, 'should not have a repeating digit');
+        equal(stone.kind, FilterConstants.Kind.PREFIX_TWO, 'should have kind set');
       });
 
       test('Milestone: Create invalid Milestones with constructors', function() {
@@ -81,7 +99,7 @@ define(
         var repeatStone = Milestone.repeatDigitMilestone(start_date, time_unit, mag_ONE, direction_value, repeat);
         equal(repeatStone, false, 'invalid repeatMilestone (magnitude 1) should be false');
 
-        var prefixStone = Milestone.prefixMilestone(start_date, time_unit, mag_ONE, direction_value, prefix);
+        var prefixStone = Milestone.prefixOneMilestone(start_date, time_unit, mag_ONE, direction_value, prefix);
         equal(prefixStone, false, 'invalid prefixStone should be false');
       });
 
@@ -89,7 +107,7 @@ define(
         var xmasStone = Milestone.baseMilestone(start_date, time_unit, magnitude, direction_value, base_unit);
         equal(xmasStone.displayText(), '6:16pm: 343 minutes until XMas 2015', 'Works for basic milestone');
 
-        var threeFourStone = Milestone.prefixMilestone(start_date, FilterConstants.TimeUnit.YEARS, FilterConstants.Magnitude.TEN, direction_value, FilterConstants.TwoDigitPrefix.PREFIX_34);
+        var threeFourStone = Milestone.prefixTwoMilestone(start_date, FilterConstants.TimeUnit.YEARS, FilterConstants.Magnitude.TEN, direction_value, FilterConstants.TwoDigitPrefix.PREFIX_34);
         equal(threeFourStone.displayText(), '34 years until XMas 2015', 'non time-specific milestone');
       });
 
