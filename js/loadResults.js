@@ -76,7 +76,7 @@ define(function(require) {
     } else {
       resultCount.textContent = "showing " + visible_count + " of " + results.length + " results";
     }
-    console.log("Result filtering updated.");
+    //console.log("Result filtering updated.");
   }
 
   function generateMilestones() {
@@ -103,19 +103,19 @@ define(function(require) {
     }
 
     // Repeated digits (111, 222, 333 ...) base 10 only
-    // for (var direction of FilterConstants.DirectionValues) {
-    //   for (var start_date of startDates) {
-    //     for (var magnitude of FilterConstants.MagnitudeValues) {
-    //       for (var time_unit of FilterConstants.TimeUnitValues) {
-    //         for (var repeat of FilterConstants.RepeatingDigitValues) {
-    //           addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    for (var direction of FilterConstants.DirectionValues) {
+      for (var start_date of startDates) {
+        for (var magnitude of FilterConstants.MagnitudeValues) {
+          for (var time_unit of FilterConstants.TimeUnitValues) {
+            for (var repeat of FilterConstants.RepeatingDigitValues) {
+              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
+            }
+          }
+        }
+      }
+    }
 
-    // Two leading digits: (12000, 13000, 14000). base 10 only.
+    // One leading digit: (2000, 3000, 4000). base 10 only.
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
@@ -123,6 +123,16 @@ define(function(require) {
             for (var prefix of FilterConstants.OneDigitPrefixValues) {
               addMilestone(Milestone.prefixOneMilestone(start_date, time_unit, magnitude, direction, prefix));
             }
+          }
+        }
+      }
+    }
+
+    // Two leading digits: (12000, 13000, 14000). base 10 only.
+    for (var direction of FilterConstants.DirectionValues) {
+      for (var start_date of startDates) {
+        for (var magnitude of FilterConstants.MagnitudeValues) {
+          for (var time_unit of FilterConstants.TimeUnitValues) {
             for (var prefix of FilterConstants.TwoDigitPrefixValues) {
               addMilestone(Milestone.prefixTwoMilestone(start_date, time_unit, magnitude, direction, prefix));
             }
@@ -132,7 +142,6 @@ define(function(require) {
     }
 
     // TODO: Possible future additions:
-    // One leading digit:  2000, 3000, 4000...
     // Sequences:          123, 1234, 12345, ... 54321, ...
     // Constants           3.14159, 31.4159, ... (any other constants of general interest?)
   }

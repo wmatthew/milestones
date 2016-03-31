@@ -48,7 +48,6 @@ a.onlyLink, a.allLink {
 }
 
 a.onlyLink:hover, a.allLink:hover {
-  color: #000099;
   font-weight: 700;
   text-decoration: underline;
 }
@@ -60,12 +59,12 @@ a.inactive {
 }
 
 a {
-  color:#39c;
+  color:#069;
   text-decoration:none;
 }
 
 a:hover {
-  color:#069;
+  color:#39c;
   cursor: pointer;
 }
 

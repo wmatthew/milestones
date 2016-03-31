@@ -166,12 +166,6 @@ define(function(require) {
 		FUTURE : {text: 'future', value:  1, weight: 8}
 	}
 
-  // TODO: use this?
-	FilterConstants.Special = {
-		PI: {text: 'Pi (not pie)', value: Math.PI, weight: 10},
-		SIX_SIX_SIX: {text: '666', value: 666, weight: 10}
-	}
-
   function values(hash) {
     return Object.keys(hash).map(function (v) {return hash[v];});
   }
