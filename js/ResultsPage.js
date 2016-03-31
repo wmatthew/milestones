@@ -1,3 +1,4 @@
+"use strict";
 requirejs.config({
 	paths: {
 		lib: 'lib',

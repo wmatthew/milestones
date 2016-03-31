@@ -1,3 +1,4 @@
+"use strict";
 // class representing a milestone result
 define(function(require) {
 
@@ -19,6 +20,10 @@ define(function(require) {
 	  this.determine_weight();
 	}
 
+  Milestone.getFilterConstants = function() {
+    return FilterConstants;
+  }
+
   // Create a milestone in an unusual base (eg binary)
   Milestone.baseMilestone = function(start_date, time_unit, magnitude, direction_value, base_unit) {
   	if (magnitude == FilterConstants.Magnitude.ONE && base_unit !== FilterConstants.Base.TEN) {
@@ -38,9 +43,9 @@ define(function(require) {
 
   // Create a milestone with repeating digits, eg 77,777
   Milestone.repeatDigitMilestone = function(start_date, time_unit, magnitude, direction_value, repeat) {
-  	if (repeat == FilterConstants.RepeatingDigit.NONE) {
+  	if (repeat === FilterConstants.RepeatingDigit.NONE) {
   		return false; // there's no digit to repeat.
-  	} else if (magnitude == FilterConstants.Magnitude.ONE) {
+  	} else if (magnitude === FilterConstants.Magnitude.ONE) {
   		return false; // too short for repeating digits.
   	} else {
     	var stone = new Milestone(
@@ -56,15 +61,17 @@ define(function(require) {
   }
 
   // Create a big round number milestone like 12,000,000
-  Milestone.prefixMilestone = function(start_date, time_unit, magnitude, direction, prefix) {
-  	if (magnitude == FilterConstants.Magnitude.ONE) {
+  Milestone.prefixMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
+  	if (magnitude === FilterConstants.Magnitude.ONE) {
   		return false; // too short for two-digit prefix.
+    } else if (prefix === FilterConstants.TwoDigitPrefix.NO_PREFIX) {
+      return false; // need a prefix.
   	} else {
 	    var stone = new Milestone(
 	    	start_date,
 	    	time_unit,
 	    	magnitude,
-	    	direction,
+	    	direction_value,
 	    	FilterConstants.Base.TEN,
 	    	FilterConstants.RepeatingDigit.NONE,
 	    	prefix);
@@ -87,33 +94,41 @@ define(function(require) {
       this.html_element.appendChild(this.header);
       this.header.appendChild(headerText);
 
-      var pluralizedUnits = this.time_unit.text + ((this.magnitude.value == 1) ? '' : 's');
-      var displayDirection = this.direction_value == FilterConstants.Direction.AFTER ? 'since' : 'until';
-
-			var text = document.createTextNode(
-				[
-				  this.displayTime() + this.displayValue(),
-				  pluralizedUnits,
-				  displayDirection,
-				  this.start_date.shortLabel
-				].join(' ')
-		  );
+      var text = document.createTextNode(this.displayText());
 			this.html_element.appendChild(text);
 
-      // Add an explanation for non-base-ten numbers
+      // parenthetical explanation for non-base-ten numbers
       if (this.base_unit !== FilterConstants.Base.TEN) {
       	this.html_element.appendChild(document.createElement("br"));
-	      var baseText = document.createTextNode("(" + this.magnitude.text + " " + pluralizedUnits + " in " + this.base_unit.text + ")")
+	      var baseText = document.createTextNode(this.displayBaseNote());
 				this.html_element.appendChild(baseText);
       }
 
-      // TODO: remove. Debug only
+      // [Debug only]
       // if (true) {
       //   this.html_element.appendChild(document.createElement("br"));
-      //   var baseText = document.createTextNode("(weight: " + this.weight + ")");
+      //   var baseText = document.createTextNode("<<weight: " + this.weight + ">>");
       //   this.html_element.appendChild(baseText);
       // }
 		},
+
+    displayText: function() {
+      var pluralizedUnits = this.time_unit.text + ((this.magnitude.value == 1) ? '' : 's');
+      var displayDirection = this.direction_value == FilterConstants.Direction.AFTER ? 'since' : 'until';
+      var text =
+        [
+          this.displayTime() + this.displayValue(),
+          pluralizedUnits,
+          displayDirection,
+          this.start_date.shortLabel
+        ].join(' ');
+      return text;
+    },
+
+    displayBaseNote: function() {
+      var pluralizedUnits = this.time_unit.text + ((this.magnitude.value == 1) ? '' : 's');
+      return "(" + this.magnitude.text + " " + pluralizedUnits + " in " + this.base_unit.text + ")";
+    },
 
     displayYear: function() {
       var year = this.end_date.getFullYear();
@@ -185,11 +200,11 @@ define(function(require) {
     		this.rawValue *= Math.pow(this.base_unit.value, this.magnitude.exponent);
   		}
 
-			if (this.time_unit == FilterConstants.TimeUnit.MONTHS) {
+			if (this.time_unit === FilterConstants.TimeUnit.MONTHS) {
 				// special case: need to calculate this.end_date by months, not by days.
 				this.end_date = new Date(this.start_date.value);
 				this.end_date.setMonth(this.end_date.getMonth() + this.rawValue);
-			} else if (this.time_unit == FilterConstants.TimeUnit.YEARS) {
+			} else if (this.time_unit === FilterConstants.TimeUnit.YEARS) {
 				// special case: need to calculate this.end_date by year, not by days.
 				this.end_date = new Date(this.start_date.value);
 				this.end_date.setYear(this.end_date.getFullYear() + this.rawValue);

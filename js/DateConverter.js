@@ -1,3 +1,4 @@
+"use strict";
 define(function(require) {
 
   function DateConverter() {}
@@ -8,7 +9,7 @@ define(function(require) {
   DateConverter.unpackStartDates = function(query_str) {
     var resultDates = [];
 
-    for (chunk of query_str.split("&")) {
+    for (var chunk of query_str.split("&")) {
       var pair = chunk.split("=");
       if (pair.length !== 2) {
         continue;
@@ -38,7 +39,6 @@ define(function(require) {
     var packed = date_arr.map(function(d) {
       return d.shortLabel + "=" + dateFormat(d.value, "yyyy-mm-dd");
     }).join("&");
-    // console.log("Packed: " + packed);
     return packed;
   }
 

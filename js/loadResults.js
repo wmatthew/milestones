@@ -1,8 +1,9 @@
+"use strict";
 define(function(require) {
 
   // Imports
   var Milestone = require('Milestone');
-  var FilterConstants = require('FilterConstants');
+  var FilterConstants = Milestone.getFilterConstants();
   var DateConverter = require('DateConverter');
 
   // Set things up
@@ -55,9 +56,9 @@ define(function(require) {
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   function updateResults() {
     var visible_count = 0;
-    for (result of results) {
+    for (var result of results) {
       result.set_visible(true);
-      for (checkbox of all_checkboxes) {
+      for (var checkbox of all_checkboxes) {
         if (!checkbox.checked && checkbox.testing_function(result)) {
           result.set_visible(false);
         }
@@ -86,11 +87,11 @@ define(function(require) {
     }
 
     // Basic numbers (1, 10, 100...) in all bases
-    for (direction of FilterConstants.DirectionValues) {
-      for (start_date of startDates) {
-        for (magnitude of FilterConstants.MagnitudeValues) {
-          for (time_unit of FilterConstants.TimeUnitValues) {
-            for (base_unit of FilterConstants.BaseValues) {
+    for (var direction of FilterConstants.DirectionValues) {
+      for (var start_date of startDates) {
+        for (var magnitude of FilterConstants.MagnitudeValues) {
+          for (var time_unit of FilterConstants.TimeUnitValues) {
+            for (var base_unit of FilterConstants.BaseValues) {
               addMilestone(Milestone.baseMilestone(start_date, time_unit, magnitude, direction, base_unit));
             }
           }
@@ -99,11 +100,11 @@ define(function(require) {
     }
 
     // Repeated digits (111, 222, 333 ...) base 10 only
-    for (direction of FilterConstants.DirectionValues) {
-      for (start_date of startDates) {
-        for (magnitude of FilterConstants.MagnitudeValues) {
-          for (time_unit of FilterConstants.TimeUnitValues) {
-            for (repeat of FilterConstants.RepeatingDigitValues) {
+    for (var direction of FilterConstants.DirectionValues) {
+      for (var start_date of startDates) {
+        for (var magnitude of FilterConstants.MagnitudeValues) {
+          for (var time_unit of FilterConstants.TimeUnitValues) {
+            for (var repeat of FilterConstants.RepeatingDigitValues) {
               addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
             }
           }
@@ -114,12 +115,12 @@ define(function(require) {
     // TODO: speed load time up, then add this back in.
     //
     // Two leading digits: (12000, 13000, 14000). base 10 only.
-    // for (direction of FilterConstants.DirectionValues) {
-    //   for (start_date of startDates) {
-    //     for (magnitude of FilterConstants.MagnitudeValues) {
-    //       for (time_unit of FilterConstants.TimeUnitValues) {
-    //         for (prefix of FilterConstants.TwoDigitPrefixValues) {
-    //           addMilestone(Milestone.prefixMilestone(start_date, time_unit, magnitude, direction, prefix));
+    // for (var direction of FilterConstants.DirectionValues) {
+    //   for (var start_date of [startDates[0]]) {
+    //     for (var magnitude of [FilterConstants.Magnitude.ONE]) {    //FilterConstants.MagnitudeValues) {
+    //       for (var time_unit of [FilterConstants.TimeUnit.YEARS]) { //FilterConstants.TimeUnitValues) {
+    //         for (var prefix of [FilterConstants.TwoDigitPrefix.NO_PREFIX]) {
+    //           //addMilestone(Milestone.prefixMilestone(start_date[0], FilterConstants.TimeUnit.YEARS, FilterConstants.Magnitude.ONE, FilterConstants.Direction.BEFORE, FilterConstants.TwoDigitPrefix.NO_PREFIX));
     //         }
     //       }
     //     }
@@ -158,7 +159,7 @@ define(function(require) {
     }
 
     // add back in, in order
-    for (result of results) {
+    for (var result of results) {
       resultsContainer.appendChild(result.html_element);
     }
     return false;
@@ -240,7 +241,7 @@ define(function(require) {
       head.appendChild(headTitle);
       head.appendChild(allLink);
 
-      for (option of options) {
+      for (var option of options) {
         var checkbox = document.createElement("input");
         checkbox.type = "checkbox";
         checkbox.checked = true;
@@ -287,7 +288,7 @@ define(function(require) {
     }
 
     addSubpanel("Event", startDates, function(start_date, stone) {
-      return stone.start_date.value === start_date.value;
+      return stone.start_date === start_date;
     });
 
     // TODO: add [x] links next to events
@@ -302,16 +303,16 @@ define(function(require) {
     // addSubpanel("Number", dummyNumTypes, function(a,b){return false;});
 
     // Rename to number length ? made it a slider?
-    // addSubpanel("Number", FilterConstants.MagnitudeValues, function(magnitude, stone) {
-    //   return stone.magnitude === magnitude;
-    // });
+    addSubpanel("Digits", FilterConstants.MagnitudeValues, function(magnitude, stone) {
+      return stone.magnitude === magnitude;
+    });
 
     addSubpanel("Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {
-      return stone.time_unit.value === time_unit.value;
+      return stone.time_unit === time_unit;
     });
 
     addSubpanel("Base", FilterConstants.BaseValues, function(base_unit, stone) {
-      return stone.base_unit.value === base_unit.value;
+      return stone.base_unit === base_unit;
     });
 
     addSubpanel("Repeat", FilterConstants.RepeatingDigitValues, function(repeat, stone) {
@@ -323,7 +324,7 @@ define(function(require) {
     });
 
     addSubpanel("Before / After Event", FilterConstants.DirectionValues, function(direction, stone) {
-      return stone.direction.value === direction.value;
+      return stone.direction_value.value === direction.value;
     });
   }
 
