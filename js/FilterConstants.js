@@ -1,6 +1,9 @@
 "use strict";
 define(function(require) {
 
+  // TODO: convert to singleton?
+  // we do === equality testing all over the place; any class that creates multiple FilterConstants
+  // would give incorrect results.
   function FilterConstants() {}
   FilterConstants.prototype = {}
 

@@ -113,19 +113,18 @@ define(function(require) {
     }
 
     // TODO: speed load time up, then add this back in.
-    //
     // Two leading digits: (12000, 13000, 14000). base 10 only.
-    // for (var direction of FilterConstants.DirectionValues) {
-    //   for (var start_date of [startDates[0]]) {
-    //     for (var magnitude of [FilterConstants.Magnitude.ONE]) {    //FilterConstants.MagnitudeValues) {
-    //       for (var time_unit of [FilterConstants.TimeUnit.YEARS]) { //FilterConstants.TimeUnitValues) {
-    //         for (var prefix of [FilterConstants.TwoDigitPrefix.NO_PREFIX]) {
-    //           //addMilestone(Milestone.prefixMilestone(start_date[0], FilterConstants.TimeUnit.YEARS, FilterConstants.Magnitude.ONE, FilterConstants.Direction.BEFORE, FilterConstants.TwoDigitPrefix.NO_PREFIX));
-    //         }
-    //       }
-    //     }
-    //   }
-    // }
+    for (var direction of FilterConstants.DirectionValues) {
+      for (var start_date of startDates) {
+        for (var magnitude of FilterConstants.MagnitudeValues) {
+          for (var time_unit of FilterConstants.TimeUnitValues) {
+            for (var prefix of FilterConstants.TwoDigitPrefixValues) {
+              addMilestone(Milestone.prefixMilestone(start_date, time_unit, magnitude, direction, prefix));
+            }
+          }
+        }
+      }
+    }
 
     // TODO: Possible future additions:
     // One leading digit:  2000, 3000, 4000...
@@ -151,10 +150,8 @@ define(function(require) {
 
     // sort
     if (by_date) {
-      console.log("Sorting by date.");
       results.sort(function(a,b) {return a.end_date - b.end_date});
     } else {
-      console.log("Sorting by best match.");
       results.sort(function(a,b) {return b.weight - a.weight});
     }
 
