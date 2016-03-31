@@ -7,7 +7,7 @@ define(function(require) {
 
   // Constructor.
   // Don't call directly; use methods like baseMilestone, repeatingDigitMilestone, etc.
-	function Milestone(start_date, time_unit, magnitude, direction_value, base_unit, repeat, prefix) {
+	function Milestone(start_date, time_unit, magnitude, direction_value, base_unit, repeat, prefix, kind) {
 	  this.start_date = start_date;
 	  this.time_unit = time_unit; // seconds, minutes, etc.
 	  this.magnitude = magnitude; // 1, 10, 100, etc.
@@ -15,6 +15,7 @@ define(function(require) {
 	  this.base_unit = base_unit;
 	  this.repeat = repeat;
 	  this.prefix = prefix;
+    this.kind = kind;
 
 	  this.determine_end_date();
 	  this.determine_weight();
@@ -36,7 +37,8 @@ define(function(require) {
   	  	direction_value,
   	  	base_unit,
   	  	FilterConstants.RepeatingDigit.NONE,
-  	  	FilterConstants.TwoDigitPrefix.NO_PREFIX);
+  	  	FilterConstants.TwoDigitPrefix.NO_PREFIX,
+        FilterConstants.Kind.POWER_OF_TEN);
   	  return stone;
     }
   }
@@ -55,7 +57,8 @@ define(function(require) {
     		direction_value,
     		FilterConstants.Base.TEN,
     		repeat,
-    		FilterConstants.TwoDigitPrefix.NO_PREFIX);
+    		FilterConstants.TwoDigitPrefix.NO_PREFIX,
+        FilterConstants.Kind.REPEAT);
     	return stone;
   	}
   }
@@ -74,7 +77,8 @@ define(function(require) {
 	    	direction_value,
 	    	FilterConstants.Base.TEN,
 	    	FilterConstants.RepeatingDigit.NONE,
-	    	prefix);
+	    	prefix,
+        FilterConstants.Kind.PREFIX_TWO);
 	    return stone;
 	  }
   }

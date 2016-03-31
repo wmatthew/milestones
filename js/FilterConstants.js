@@ -33,6 +33,12 @@ define(function(require) {
   	return hash;
   }();
 
+  FilterConstants.Kind = {
+  	POWER_OF_TEN: { text: 'power of ten', example: '10000'},
+  	REPEAT: { text: 'repeating', example: '7777'},
+  	PREFIX_TWO: { text: 'round number', example: '6700'},
+  	PREFIX_ONE: { text: 'very round number', example: '6000'},
+  }
 
 	FilterConstants.Direction = {
 		BEFORE: {text: 'before', value: -1, weight: 0},
@@ -159,6 +165,7 @@ define(function(require) {
 	FilterConstants.EraValues            = values(FilterConstants.Era);
 	FilterConstants.RepeatingDigitValues = values(FilterConstants.RepeatingDigit);
 	FilterConstants.TwoDigitPrefixValues = values(FilterConstants.TwoDigitPrefix);
+	FilterConstants.KindValues           = values(FilterConstants.Kind);
 
   return FilterConstants;
 });

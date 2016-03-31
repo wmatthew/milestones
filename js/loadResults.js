@@ -218,12 +218,11 @@ define(function(require) {
 
       var optionsSection = document.createElement("div");
       optionsSection.className = "optionsSection";
-      optionsSection.style.display = "none";
       subpanel.appendChild(optionsSection);
 
       var collapseLink = document.createElement("a");
-      collapseLink.sectionHidden = true;
-      collapseLink.textContent = "[+] ";
+      collapseLink.sectionHidden = false;
+      collapseLink.textContent = "[-] ";
       collapseLink.className = "collapseLink";
       collapseLink.onclick = toggleOptionSectionEvent;
       collapseLink.targetSection = optionsSection;
@@ -288,23 +287,16 @@ define(function(require) {
       return stone.start_date === start_date;
     });
 
-    // TODO: add [x] links next to events
-
-    // Doesn't work yet
-    // var dummyNumTypes = [
-    //   {text: "repeat (eg 7777)"},
-    //   {text: "round (eg 6700)"},
-    //   {text: "very round (eg 6000)"},
-    //   {text: "power of 10 (eg 10000)"}
-    // ];
-    // addSubpanel("Number", dummyNumTypes, function(a,b){return false;});
+    addSubpanel("Kind", FilterConstants.KindValues, function(kind,stone){
+      return stone.kind === kind;
+    });
 
     // Rename to number length ? made it a slider?
-    addSubpanel("Digits", FilterConstants.MagnitudeValues, function(magnitude, stone) {
+    addSubpanel("Length", FilterConstants.MagnitudeValues, function(magnitude, stone) {
       return stone.magnitude === magnitude;
     });
 
-    addSubpanel("Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {
+    addSubpanel("Time Unit", FilterConstants.TimeUnitValues, function(time_unit, stone) {
       return stone.time_unit === time_unit;
     });
 
@@ -312,7 +304,7 @@ define(function(require) {
       return stone.base_unit === base_unit;
     });
 
-    addSubpanel("Repeat", FilterConstants.RepeatingDigitValues, function(repeat, stone) {
+    addSubpanel("Repeated Digit", FilterConstants.RepeatingDigitValues, function(repeat, stone) {
       return stone.repeat.value === repeat.value;
     });
 
@@ -330,12 +322,6 @@ define(function(require) {
   generateMilestones();
   sortResults(document.getElementById("date_link"));
   updateResults();
-
-  // Open the first two sections
-  toggleOptionSection(document.getElementsByClassName("collapseLink")[0]);
-  toggleOptionSection(document.getElementsByClassName("collapseLink")[1]);
-
-  // Loading is complete.
-  resultsHeader.textContent = "Results";
+  resultsHeader.textContent = "Results"; // Tell user loading is complete.
 });
 
