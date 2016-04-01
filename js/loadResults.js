@@ -163,8 +163,10 @@ define(function(require) {
 
     // sort
     if (by_date) {
+      // earliest date first
       results.sort(function(a,b) {return a.end_date - b.end_date});
     } else {
+      // highest weight first
       results.sort(function(a,b) {return b.weight - a.weight});
     }
 
