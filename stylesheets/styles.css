@@ -41,8 +41,13 @@ h3, h4, h5, h6 {
                                   not supported by any browser */
 }
 
+a.editEventsLink {
+  font-weight: 700;
+  margin-left: 20px;
+}
+
 a.onlyLink, a.allLink {
-  margin-left: 5px;
+  margin-left: 0.5em;
   color: #FFF;
   font-weight: 700;
 }
@@ -50,6 +55,14 @@ a.onlyLink, a.allLink {
 a.onlyLink:hover, a.allLink:hover {
   font-weight: 700;
   text-decoration: underline;
+}
+
+a.deleteButton {
+  margin-right: 0.5em;
+}
+
+a.deleteButton:hover {
+  color: #DD2222;
 }
 
 a.inactive {

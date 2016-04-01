@@ -7,5 +7,5 @@ requirejs.config({
 });
 
 requirejs(['lib/date.format'], function(x) {
-	requirejs(['loadResults']);
+	requirejs(['LoadResults']);
 });
