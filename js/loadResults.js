@@ -76,7 +76,6 @@ define(function(require) {
     } else {
       resultCount.textContent = "showing " + visible_count + " of " + results.length + " results";
     }
-    //console.log("Result filtering updated.");
   }
 
   function generateMilestones() {
@@ -228,8 +227,8 @@ define(function(require) {
       if (optionList === FilterConstants.KindValues) {
         return option.text + " (" + option.example+ ")";
       } else if (optionList === FilterConstants.MagnitudeValues) {
-        if (option.exponent % 3 == 0) {
-          return (option.exponent+1) + " (" + option.text + ")";
+        if (option.shortLabel) {
+          return (option.exponent+1) + " (" + option.shortLabel + ")";
         } else {
           return (option.exponent+1);
         }
@@ -324,7 +323,7 @@ define(function(require) {
       return stone.start_date === start_date;
     });
 
-    addSubpanel("Kind", FilterConstants.KindValues, function(kind,stone){
+    addSubpanel("Type", FilterConstants.KindValues, function(kind,stone){
       return stone.kind === kind;
     });
 
@@ -345,7 +344,7 @@ define(function(require) {
       return stone.repeat.value === repeat.value;
     });
 
-    addSubpanel("Past / Future", FilterConstants.EraValues, function(era, stone) {
+    addSubpanel("Before / After Today", FilterConstants.EraValues, function(era, stone) {
       return stone.era.value === era.value;
     });
 

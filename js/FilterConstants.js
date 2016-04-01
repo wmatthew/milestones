@@ -53,8 +53,8 @@ define(function(require) {
 
   FilterConstants.Kind = {
   	REPEAT: { text: 'repeating', example: '7777'},
-  	PREFIX_TWO: { text: 'round number', example: '6700'},
-  	PREFIX_ONE: { text: 'very round number', example: '6000'},
+  	PREFIX_TWO: { text: 'round number', example: '7800'},
+  	PREFIX_ONE: { text: 'very round number', example: '7000'},
   	POWER_OF_TEN: { text: 'power of ten', example: '1000'},
   }
 
@@ -80,16 +80,16 @@ define(function(require) {
 		ONE                  : { value: 1,             exponent: 0,  weight: 10, text: 'one' },
 		TEN                  : { value: 10, 			     exponent: 1,  weight: 5,  text: 'ten'	},
 		HUNDRED              : { value: 100,		       exponent: 2,  weight: 5,  text: 'one hundred'	},
-		THOUSAND             : { value: 1000,          exponent: 3,  weight: 8,  text: 'one thousand' },
+		THOUSAND             : { value: 1000,          exponent: 3,  weight: 8,  text: 'one thousand', shortLabel: 'thousands' },
 		TEN_THOUSAND         : { value: 10000,         exponent: 4,  weight: 4,  text: 'ten thousand'	},
 		ONE_HUNDRED_THOUSAND : { value: 100000,        exponent: 5,  weight: 4,  text: 'one hundred thousand' },
-		MILLION              : { value: 1000000,	     exponent: 6,  weight: 10, text: 'one million' },
+		MILLION              : { value: 1000000,	     exponent: 6,  weight: 10, text: 'one million', shortLabel: 'millions' },
 		TEN_MILLION          : { value: 10000000,	     exponent: 7,  weight: 5,  text: 'ten million' },
 		HUNDRED_MILLION      : { value: 100000000,     exponent: 8,  weight: 5,  text: 'one hundred million' },
-		BILLION              : { value: 1000000000,		 exponent: 9,	 weight: 10, text: 'one billion' },
+		BILLION              : { value: 1000000000,		 exponent: 9,	 weight: 10, text: 'one billion', shortLabel: 'billions' },
 		TEN_BILLION          : { value: 10000000000,   exponent: 10, weight: 4,  text: 'ten billion' },
 		HUNDRED_BILLION      : { value: 100000000000,  exponent: 11, weight: 4,  text: 'one hundred billion' },
-		TRILLION             : { value: 1000000000000, exponent: 12, weight: 10, text: 'one trillion' }
+		TRILLION             : { value: 1000000000000, exponent: 12, weight: 10, text: 'one trillion', shortLabel: 'trillions' }
 		// trillion is probably the max needed. 1 trillion msecs = ~31 years, so almost everything is
 		// outside the valid date range (date===NaN) at this point.
 	}
