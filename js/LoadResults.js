@@ -21,31 +21,42 @@ define(function(require) {
   var htmlDownArrow = "&#9660;";
   var htmlRightArrow = "&#9654;";
 
-  // by default, show the next 30 days
   var earliestShown = new Date();
   earliestShown.setHours(0,0,0,0);
 
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
-  function updateResults() {
+  function updateResults(numToReveal = 0) {
     var all_checkboxes = filterPanel.getAllCheckboxes();
     var visible_count = 0; // number we add to DOM
     var found_count = 0; // max the user could see with these filter options
+    var newly_revealed = 0;
+
     var minResultsShown = 50;
     var earlierExist = false;
     var laterExist = false;
     var previousElement = false;
+    var previousVisibleElementHeader = false;
 
     for (var result of results) {
       var filterVisible = !isHiddenByFilters(result);
       var afterStart = result.end_date > earliestShown;
       var showMore = visible_count < minResultsShown;
+      var revealMore = newly_revealed < numToReveal;
 
-      if (filterVisible && afterStart && showMore) {
+      if (filterVisible && afterStart && (showMore || revealMore)) {
+        if (!result.is_visible()) {
+          newly_revealed ++;
+        }
         if (!result.html_element) {
           var resNode = document.createElement("p");
+          resNode.className = "entry";
           result.attachElement(resNode);
           insertAfterChild(resultsContainer, previousElement, result.html_element);
         }
+        var currentElementHeader = result.html_element.firstChild;
+        var repeatHeader = (currentElementHeader.textContent == previousVisibleElementHeader.textContent);
+        currentElementHeader.style.display = repeatHeader ? 'none' : 'block';
+        previousVisibleElementHeader = currentElementHeader;
         visible_count++;
       }
 
@@ -76,6 +87,10 @@ define(function(require) {
           parent.appendChild(newNode);
         }
       }
+    }
+
+    if (numToReveal > 0) {
+      console.log("revealed " + newly_revealed + " more items. (goal: " + numToReveal + ")");
     }
 
     document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
@@ -167,6 +182,7 @@ define(function(require) {
     }
 
     sortResults();
+    updateResults();
   }
 
   // sort, earliest date first
@@ -174,7 +190,7 @@ define(function(require) {
     results.sort(function(a,b) {return a.end_date - b.end_date});
   }
 
-  function wireUpInputs() {
+  function wireUpFilterPanel() {
     filterPanel = new FilterPanel(updateResults);
     filterPanel.attachToElement(document.getElementById("control_panel"));
     filterPanel.addAllSubpanels(startDates);
@@ -304,11 +320,8 @@ define(function(require) {
       startDates = newDateArray;
       DateConverter.overwriteLocalStorageDates(newDateArray);
 
-      // regenerate milestones
+      // regenerate milestones+update
       generateMilestones();
-
-      // update results
-      updateResults();
 
       // remove events panel
       eventsPanel.parentNode.removeChild(eventsPanel);
@@ -365,10 +378,35 @@ define(function(require) {
     buttonRow.appendChild(stopEditLink);
   }
 
-  wireUpInputs();
+  function showEarlierEvent() {
+    console.log("show earlier not implemented yet");
+    // updateResults();
+  }
+
+  function showLaterEvent() {
+    console.log("show later");
+    var numToReveal = 50;
+    updateResults(numToReveal);
+  }
+
+  function wireUpInfinteScroll() {
+    var showEarlier = document.createElement("div");
+    showEarlier.id = 'earlier_results';
+    showEarlier.textContent = "show earlier results";
+    showEarlier.onclick = showEarlierEvent;
+    resultsContainer.parentNode.insertBefore(showEarlier, resultsContainer);
+
+    var showLater = document.createElement("div");
+    showLater.id = 'later_results';
+    showLater.textContent = "show later results";
+    showLater.onclick = showLaterEvent;
+    resultsContainer.parentNode.appendChild(showLater);
+  }
+
+  wireUpInfinteScroll();
+  wireUpFilterPanel();
   wireUpEventsEditor();
   generateMilestones();
-  updateResults();
-  resultsHeader.textContent = "Results"; // Informs user loading is complete.
+  resultsHeader.textContent = "Results"; // Shows user loading is complete.
 });
 

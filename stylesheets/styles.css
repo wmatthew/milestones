@@ -31,6 +31,10 @@ h3, h4, h5, h6 {
   color:#494949;
 }
 
+p.entry {
+  margin-bottom: 0px;
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none;   /* Chrome/Safari/Opera */
@@ -77,6 +81,18 @@ input.invalid {
 div.buttonRow {
   margin-top: 0.6em;
   margin-left: 20px;
+}
+
+span.minor {
+  margin-left: 20px;
+}
+
+div#earlier_results, div#later_results {
+  background-color: #FAEBD7;
+  padding: 10px;
+  font-size: medium;
+  text-align: center;
+  margin: 10px 0 10px 0;
 }
 
 .pillButton {

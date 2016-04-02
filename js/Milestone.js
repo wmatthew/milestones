@@ -150,8 +150,10 @@ define(function(require) {
       // parenthetical explanation for non-base-ten numbers
       if (this.base_unit !== FilterConstants.Base.TEN) {
       	this.html_element.appendChild(document.createElement("br"));
-	      var baseText = document.createTextNode(this.displayBaseNote());
-				this.html_element.appendChild(baseText);
+        var baseNote = document.createElement("span");
+        baseNote.className = "minor";
+        baseNote.textContent = this.displayBaseNote();
+				this.html_element.appendChild(baseNote);
       }
 
       // [Debug only]
@@ -203,7 +205,8 @@ define(function(require) {
     },
 
     displayValue: function() {
-    	if (this.kind === FilterConstants.Kind.POWER_OF_TEN) {
+    	if (this.kind === FilterConstants.Kind.POWER_OF_TEN &&
+          this.base === FilterConstants.Base.TEN) {
 				return this.magnitude.text; // eg, "one million"
     	} else {
     		return Math.abs(this.rawValue); // eg, "77777"
@@ -287,7 +290,7 @@ define(function(require) {
     },
 
     is_visible: function() {
-      return this.html_element.style.display === "block";
+      return this.html_element && this.html_element.style.display === "block";
     }
   }
 
