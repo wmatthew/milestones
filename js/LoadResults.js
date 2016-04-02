@@ -6,9 +6,10 @@ define(function(require) {
   var FilterConstants = Milestone.getFilterConstants();
   var DateConverter = require('DateConverter');
   var FilterPanel = require('FilterPanel');
+  var Pikaday = require('lib/pikaday/pikaday');
 
   // Set things up
-  var startDates = getStartDates();
+  var startDates = DateConverter.getStartDates();
   var filterPanel;
 
   var resultsContainer = document.getElementById("results_container");
@@ -18,43 +19,6 @@ define(function(require) {
 
   var htmlDownArrow = "&#9660;";
   var htmlRightArrow = "&#9654;";
-
-  function getStartDates() {
-    var dateList = [];
-
-    function addDate(newDate) {
-      // Generous dupe policy: allow different labels on same date, different dates w same label.
-      if (dateList.some(function(x) {return newDate.text == x.text;})) {
-        console.log("repeat date: " + newDate.text);
-      } else {
-        // console.log("adding start date: " + newDate.text);
-        dateList.push(newDate);
-      }
-    }
-
-    // dates from URL
-    var search = window.location.search.substr(1);
-    DateConverter.unpackStartDates(search).map(addDate);
-
-    // dates from localStorage
-    if (localStorage) {
-      var events = localStorage.getItem('events');
-      if (events) {
-        DateConverter.unpackStartDates(events).map(addDate);
-      }
-    }
-
-    // Result page doesn't look good empty. Add an event so there's something to see.
-    if (dateList.length == 0) {
-      DateConverter.unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
-    }
-
-    if (localStorage) {
-      localStorage.setItem('events', DateConverter.packStartDates(dateList));
-    }
-
-    return dateList;
-  }
 
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   function updateResults() {
@@ -208,7 +172,6 @@ define(function(require) {
     filterPanel.addAllSubpanels(startDates);
   }
 
-  // TODO
   function showEventsEditor() {
     // clear out the editing panel
     var editor = document.getElementById("editPanelInner");
@@ -216,21 +179,78 @@ define(function(require) {
       editor.removeChild(editor.firstChild);
     }
 
-    // add a row for each current event, and delete buttons
-    for (var date of startDates) {
+    function deleteEventHandler(event) {
+      // Remove the element from the event editor
+      var node = event.srcElement;
+      node.parentNode.parentNode.removeChild(node.parentNode);
+    }
+
+    function changeEventHandler(event) {
+      var node = event.srcElement;
+      var row = node.parentNode;
+      var labelInput = row.getElementsByClassName("editEventLabel")[0];
+      var dateInput = row.getElementsByClassName("editEventDate")[0];
+
+      // TODO: highlight date as invalid if needed
+      var canary = new Date(dateInput.value);
+      if (row.isNewRow && isNaN(canary) && dateInput.value.length > 0) {
+        dateInput.className = "editEventDate invalid";
+      } else if (!row.isNewRow && isNaN(canary)) {
+        dateInput.className = "editEventDate invalid";
+      } else {
+        dateInput.className = "editEventDate";
+      }
+
+      if (labelInput.value.includes("?") || labelInput.value.includes("&") || labelInput.value.includes("=")) {
+        labelInput.className = "editEventLabel invalid";
+      } else {
+        labelInput.className = "editEventLabel";
+      }
+
+      if (row.isNewRow &&
+          labelInput.value != "" &&
+          dateInput.value != "") {
+        row.isNewRow = false; // no longer the new guy
+        row.deleteButton.style.display = 'inline';
+        addEventRow();
+      }
+    }
+
+    // If date is not set, add a row for a possible new event.
+    function addEventRow(date) {
       var row = document.createElement("div");
-       var deleteButton = document.createElement("a");
+      row.isNewRow = !date;
+      var labelInput = document.createElement("input");
+        labelInput.type = "text";
+        labelInput.className = "editEventLabel";
+        labelInput.value = date ? date.shortLabel : "";
+        labelInput.placeholder = date ? date.shortLabel : "New Event";
+        labelInput.onchange = changeEventHandler;
+        row.appendChild(labelInput);
+      var dateInput = document.createElement("input");
+        dateInput.type = "text";
+        dateInput.className = "editEventDate";
+        dateInput.placeholder = date ? dateFormat(date.value, "mmm dS, yyyy") : "Date";
+        var picker = new Pikaday({ field: dateInput });
+        if (date) picker.setDate(date.value);
+        dateInput.onchange = changeEventHandler;
+        row.appendChild(dateInput);
+      var deleteButton = document.createElement("a");
         deleteButton.innerHTML = "&#10006;"
         deleteButton.className = "deleteButton";
+        deleteButton.onclick = deleteEventHandler;
+        deleteButton.style.display = date ? 'inline' : 'none';
+        row.deleteButton = deleteButton;
         row.appendChild(deleteButton);
-       row.appendChild(document.createTextNode(date.text));
       editor.appendChild(row);
     }
 
-    // add a row for a possible new event, and an add button
-    var row = document.createElement("div");
-     row.appendChild(document.createTextNode("New Event"));
-    editor.appendChild(row);
+    // add a row for each current event, and delete buttons
+    for (var date of startDates) {
+      addEventRow(date);
+    }
+
+    addEventRow();
 
     var eventsPanel = document.getElementById('events_panel');
     eventsPanel.style.display = "none";
@@ -241,21 +261,66 @@ define(function(require) {
 
   // TODO
   function hideEventsEditor() {
-    // if events have changed / been added, save the changes
-
-    // clear out the events panel
-
-    // regenerate the events panel
-
     var eventsPanel = document.getElementById('events_panel');
     eventsPanel.style.display = "block";
 
     var editPanel = document.getElementById('editPanel');
     editPanel.style.display = "none";
+
+    var newDateArray = getDateArray();
+
+    function getDateArray() {
+      var date_arr = [];
+      var rows = document.getElementById("editPanelInner").children;
+      for (var i=0; i<rows.length; i++) {
+        var row = rows[i];
+        var label = row.getElementsByClassName("editEventLabel")[0].value;
+        var date = new Date(row.getElementsByClassName("editEventDate")[0].value);
+        if (!isNaN(date)) {
+          date_arr.push(DateConverter.toHash(date, label));
+        }
+      }
+      return date_arr;
+    }
+
+    var oldPacking = DateConverter.packStartDates(startDates);
+    var newPacking = DateConverter.packStartDates(newDateArray);
+    var anyEventsChanged = oldPacking != newPacking;
+
+    if (anyEventsChanged) {
+      // update startDates array + update localStorage
+      startDates = newDateArray;
+      DateConverter.overwriteLocalStorageDates(newDateArray);
+
+      // clear milestones, incl. dom elements
+      clearMilestones();
+
+      // regenerate milestones
+      generateMilestones();
+
+      // sort and update results
+      sortResults();
+      updateResults();
+
+      // remove events panel
+      eventsPanel.parentNode.removeChild(eventsPanel);
+
+      // regenerate events panel
+      filterPanel.addSubpanel("Event", startDates, function(start_date, stone) {
+        return stone.start_date === start_date;
+      });
+      addEditEventsLink();
+    }
   }
 
-  // TODO: finish implementing
-  function wireUpEventsEditor() {
+  function clearMilestones() {
+    while(resultsContainer.firstChild) {
+      resultsContainer.removeChild(resultsContainer.firstChild);
+    }
+    results = [];
+  }
+
+  function addEditEventsLink() {
     // Link at the bottom of events panel to start editing
     var eventsPanel = document.getElementById('events_panel');
     var optionsSection = eventsPanel.getElementsByTagName('div')[0];
@@ -264,6 +329,13 @@ define(function(require) {
     editLink.textContent = '+ Add / Edit Events';
     editLink.onclick = showEventsEditor;
     optionsSection.appendChild(editLink);
+  }
+
+  function wireUpEventsEditor() {
+    // Link at the bottom of events panel to start editing
+    addEditEventsLink();
+
+    var eventsPanel = document.getElementById('events_panel');
 
     // Edit panel
     var editPanel = document.createElement('div');

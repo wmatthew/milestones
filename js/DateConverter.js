@@ -24,15 +24,20 @@ define(function(require) {
         continue;
       }
 
-      var dateText = label + " (" + dateFormat(date, "mmm dS, yyyy") + ")";
-      resultDates.push({
-        value: date,
-        text: dateText,
-        shortLabel: label
-      });
+      resultDates.push(DateConverter.toHash(date, label));
     }
 
     return resultDates;
+  }
+
+  DateConverter.toHash = function(date, label) {
+    label = label.replace('&','').replace('?','').replace('=','');
+    var dateText = label + " (" + dateFormat(date, "mmm dS, yyyy") + ")";
+    return {
+      value: date,
+      text: dateText,
+      shortLabel: label
+    };
   }
 
   DateConverter.packStartDates = function(date_arr) {
@@ -40,6 +45,47 @@ define(function(require) {
       return d.shortLabel + "=" + dateFormat(d.value, "yyyy-mm-dd");
     }).join("&");
     return packed;
+  }
+
+  DateConverter.overwriteLocalStorageDates = function(dateList) {
+    if (localStorage) {
+      localStorage.setItem('events', DateConverter.packStartDates(dateList));
+    }
+  }
+
+  DateConverter.getStartDates = function() {
+    var dateList = [];
+
+    function addDate(newDate) {
+      // Generous dupe policy: allow different labels on same date, different dates w same label.
+      if (dateList.some(function(x) {return newDate.text == x.text;})) {
+        console.log("repeat date: " + newDate.text);
+      } else {
+        // console.log("adding start date: " + newDate.text);
+        dateList.push(newDate);
+      }
+    }
+
+    // dates from URL
+    var search = window.location.search.substr(1);
+    DateConverter.unpackStartDates(search).map(addDate);
+
+    // dates from localStorage
+    if (localStorage) {
+      var events = localStorage.getItem('events');
+      if (events) {
+        DateConverter.unpackStartDates(events).map(addDate);
+      }
+    }
+
+    // Result page doesn't look good empty. Add an event so there's something to see.
+    if (dateList.length == 0) {
+      DateConverter.unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
+    }
+
+    DateConverter.overwriteLocalStorageDates(dateList);
+
+    return dateList;
   }
 
   return DateConverter;

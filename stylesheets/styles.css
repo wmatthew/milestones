@@ -58,11 +58,20 @@ a.onlyLink:hover, a.allLink:hover {
 }
 
 a.deleteButton {
+  margin-left: 0.5em;
   margin-right: 0.5em;
 }
 
 a.deleteButton:hover {
   color: #DD2222;
+}
+
+input.editEventDate, input.editEventLabel {
+  width: 100px;
+}
+
+input.invalid {
+  background-color: #FFCCCC;
 }
 
 a.inactive {

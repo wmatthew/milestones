@@ -62,8 +62,12 @@ define(function(require) {
 
 		addSubpanel: function(heading, options, test_function) {
 	    var subpanel = document.createElement("div");
-	    if (heading == "Event") { subpanel.id = "events_panel"; }
-	    this.panel.appendChild(subpanel);
+	    if (heading == "Event") {
+	    	subpanel.id = "events_panel";
+	      this.panel.insertBefore(subpanel, this.panel.firstChild); // Events always goes first
+	    } else {
+	      this.panel.appendChild(subpanel);
+	    }
 
 	    var head = document.createElement("h4");
 	    var headTitle = document.createElement("span");

@@ -6,6 +6,6 @@ requirejs.config({
 	}
 });
 
-requirejs(['lib/date.format'], function(x) {
+requirejs(['lib/date.format', 'lib/pikaday/pikaday'], function() {
 	requirejs(['LoadResults']);
 });
