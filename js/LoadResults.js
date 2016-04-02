@@ -16,30 +16,75 @@ define(function(require) {
   var resultCount = document.getElementById("result_count");
   var resultsHeader = document.getElementById("results_header");
   var results = [];
+  var pickers = [];
 
   var htmlDownArrow = "&#9660;";
   var htmlRightArrow = "&#9654;";
 
+  // by default, show the next 30 days
+  var earliestShown = new Date();
+  earliestShown.setHours(0,0,0,0);
+
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   function updateResults() {
     var all_checkboxes = filterPanel.getAllCheckboxes();
-    var visible_count = 0;
+    var visible_count = 0; // number we add to DOM
+    var found_count = 0; // max the user could see with these filter options
+    var minResultsShown = 50;
+    var earlierExist = false;
+    var laterExist = false;
+    var previousElement = false;
+
     for (var result of results) {
-      result.set_visible(true);
-      for (var checkbox of all_checkboxes) {
-        if (!checkbox.checked && checkbox.testing_function(result)) {
-          result.set_visible(false);
+      var filterVisible = !isHiddenByFilters(result);
+      var afterStart = result.end_date > earliestShown;
+      var showMore = visible_count < minResultsShown;
+
+      if (filterVisible && afterStart && showMore) {
+        if (!result.html_element) {
+          var resNode = document.createElement("p");
+          result.attachElement(resNode);
+          insertAfterChild(resultsContainer, previousElement, result.html_element);
         }
-      }
-      if (result.is_visible()) {
         visible_count++;
       }
+
+      // bookkeeping and follow-ups.
+      result.set_visible(filterVisible);
+      earlierExist = earlierExist || (filterVisible && !afterStart);
+      laterExist = laterExist || (filterVisible && !showMore);
+      if (filterVisible) found_count ++;
+      if (result.html_element) {
+        previousElement = result.html_element;
+      }
+
+      // Helper subfunctions
+      function isHiddenByFilters(result) {
+        for (var checkbox of all_checkboxes) {
+          if (!checkbox.checked && checkbox.testing_function(result)) {
+            return true;
+          }
+        }
+        return false;
+      }
+
+      function insertAfterChild(parent, child, newNode) {
+        var nextSib = child.nextSibling;
+        if (nextSib) {
+          parent.insertBefore(newNode, nextSib);
+        } else {
+          parent.appendChild(newNode);
+        }
+      }
     }
+
+    document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
+    document.getElementById("later_results").style.display = laterExist ? 'block' : 'none';
 
     if (visible_count === results.length) {
       resultCount.textContent = "showing all " + results.length + " results";
     } else {
-      resultCount.textContent = "showing " + visible_count + " of " + results.length + " results";
+      resultCount.textContent = visible_count + " shown (" + results.length + " total)";
     }
   }
 
@@ -52,9 +97,6 @@ define(function(require) {
 
     function addMilestone(stone) {
       if (stone && stone.valid) {
-        var res = document.createElement("p");
-        stone.attachElement(res);
-        resultsContainer.appendChild(res);
         results.push(stone);
       }
     }
@@ -65,7 +107,7 @@ define(function(require) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
           for (var time_unit of FilterConstants.TimeUnitValues) {
             for (var base_unit of FilterConstants.BaseValues) {
-              //addMilestone(Milestone.baseMilestone(start_date, time_unit, magnitude, direction, base_unit));
+              addMilestone(Milestone.baseMilestone(start_date, time_unit, magnitude, direction, base_unit));
             }
           }
         }
@@ -78,7 +120,7 @@ define(function(require) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
           for (var time_unit of FilterConstants.TimeUnitValues) {
             for (var repeat of FilterConstants.RepeatingDigitValues) {
-              //addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
+              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
             }
           }
         }
@@ -104,33 +146,32 @@ define(function(require) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
           for (var time_unit of FilterConstants.TimeUnitValues) {
             for (var prefix of FilterConstants.TwoDigitPrefixValues) {
-              //addMilestone(Milestone.prefixTwoMilestone(start_date, time_unit, magnitude, direction, prefix));
+              addMilestone(Milestone.prefixTwoMilestone(start_date, time_unit, magnitude, direction, prefix));
             }
           }
         }
       }
     }
 
-    // TODO: Possible future additions:
-    // Sequences:          123, 1234, 12345, ... 54321, ...
+    // Sequences: (12345, 54321). base 10 only.
+    for (var direction of FilterConstants.DirectionValues) {
+      for (var start_date of startDates) {
+        for (var magnitude of FilterConstants.MagnitudeValues) {
+          for (var time_unit of FilterConstants.TimeUnitValues) {
+            for (var sequence of FilterConstants.SequenceValues) {
+              addMilestone(Milestone.sequenceMilestone(start_date, time_unit, magnitude, direction, sequence));
+            }
+          }
+        }
+      }
+    }
+
     sortResults();
   }
 
-  // sort by date or by weight
+  // sort, earliest date first
   function sortResults() {
-    // remove everything
-    while(resultsContainer.firstChild) {
-      resultsContainer.removeChild(resultsContainer.firstChild);
-    }
-
-    // sort, earliest date first
     results.sort(function(a,b) {return a.end_date - b.end_date});
-
-    // add back in, in order
-    for (var result of results) {
-      resultsContainer.appendChild(result.html_element);
-    }
-    return false;
   }
 
   function wireUpInputs() {
@@ -144,6 +185,9 @@ define(function(require) {
     var editor = document.getElementById("editPanelInner");
     while(editor.firstChild) {
       editor.removeChild(editor.firstChild);
+    }
+    for (var picker of pickers) {
+      picker.destroy();
     }
 
     function deleteEventHandler(event) {
@@ -199,6 +243,7 @@ define(function(require) {
         dateInput.className = "editEventDate";
         dateInput.placeholder = date ? dateFormat(date.value, "mmm dS, yyyy") : "Date";
         var picker = new Pikaday({ field: dateInput });
+        pickers.push(picker);
         if (date) picker.setDate(date.value);
         dateInput.onchange = changeEventHandler;
         row.appendChild(dateInput);
@@ -302,6 +347,7 @@ define(function(require) {
     editPanel.style.display = "none";
     var editHeader = document.createElement('h4');
     editHeader.textContent = "Edit Events";
+    editHeader.className = "filterHeading";
     editPanel.appendChild(editHeader);
     var editor = document.createElement("div");
     editor.id = "editPanelInner";

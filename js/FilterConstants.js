@@ -56,6 +56,7 @@ define(function(require) {
   	PREFIX_TWO: { text: 'round number', example: '7800'},
   	PREFIX_ONE: { text: 'very round number', example: '7000'},
   	POWER_OF_TEN: { text: 'power of ten', example: '1000'},
+  	SEQUENCE:   { text: 'sequence', example: '1234'},
   }
 
 	FilterConstants.Direction = {
@@ -166,6 +167,12 @@ define(function(require) {
 		FUTURE : {text: 'future', value:  1, weight: 8}
 	}
 
+	FilterConstants.Sequence = {
+		NO_SEQUENCE : {text: 'none',       value: 0,  weight: 0},
+		INCREASING  : {text: 'increasing', value: 1,  weight: 0},
+		DECREASING  : {text: 'decreasing', value: -1, weight: 0}
+	}
+
   function values(hash) {
     return Object.keys(hash).map(function (v) {return hash[v];});
   }
@@ -178,6 +185,7 @@ define(function(require) {
 	FilterConstants.RepeatingDigitValues = values(FilterConstants.RepeatingDigit);
 	FilterConstants.OneDigitPrefixValues = values(FilterConstants.OneDigitPrefix);
 	FilterConstants.TwoDigitPrefixValues = values(FilterConstants.TwoDigitPrefix);
+	FilterConstants.SequenceValues       = values(FilterConstants.Sequence);
 	FilterConstants.KindValues           = values(FilterConstants.Kind);
 
   return FilterConstants;

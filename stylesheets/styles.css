@@ -41,9 +41,9 @@ h3, h4, h5, h6 {
                                   not supported by any browser */
 }
 
-/* Sorting by date is super useful; resorting by 'best match' never seems better. */
-div#sort_links {
-  display: none;
+.filterHeading {
+  color: #000;
+  font-size: medium;
 }
 
 a.onlyLink, a.allLink {

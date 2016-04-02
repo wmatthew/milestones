@@ -71,7 +71,7 @@ define(function(require) {
 
 	    var head = document.createElement("h4");
 	    var headTitle = document.createElement("span");
-	    headTitle.className = "noselect";
+	    headTitle.className = "noselect filterHeading";
 	    headTitle.textContent = heading;
 
 	    var optionsSection = document.createElement("div");

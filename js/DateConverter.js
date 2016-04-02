@@ -61,7 +61,6 @@ define(function(require) {
       if (dateList.some(function(x) {return newDate.text == x.text;})) {
         console.log("repeat date: " + newDate.text);
       } else {
-        // console.log("adding start date: " + newDate.text);
         dateList.push(newDate);
       }
     }
@@ -82,7 +81,7 @@ define(function(require) {
     if (dateList.length == 0) {
       DateConverter.unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
       DateConverter.unpackStartDates("Obama's Birth=1961-08-04").map(addDate);
-      DateConverter.unpackStartDates("Queen Elizabeth's Birth=1926-04-21").map(addDate);
+      DateConverter.unpackStartDates("Elizabeth II's Birth=1926-04-21").map(addDate);
       DateConverter.unpackStartDates("Bastille Day=1789-07-14").map(addDate);
     }
 

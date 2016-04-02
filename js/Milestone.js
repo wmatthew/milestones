@@ -7,7 +7,7 @@ define(function(require) {
 
   // Constructor.
   // Don't call directly; use methods like baseMilestone, repeatingDigitMilestone, etc.
-	function Milestone(start_date, time_unit, magnitude, direction_value, base_unit, repeat, prefix, kind) {
+	function Milestone(start_date, time_unit, magnitude, direction_value, base_unit, repeat, prefix, sequence, kind) {
 	  this.start_date = start_date;
 	  this.time_unit = time_unit; // seconds, minutes, etc.
 	  this.magnitude = magnitude; // 1, 10, 100, etc.
@@ -15,6 +15,7 @@ define(function(require) {
 	  this.base_unit = base_unit;
 	  this.repeat = repeat;
 	  this.prefix = prefix;
+    this.sequence = sequence;
     this.kind = kind;
 
 	  this.determine_end_date();
@@ -38,6 +39,7 @@ define(function(require) {
   	  	base_unit,
   	  	FilterConstants.RepeatingDigit.NONE,
   	  	FilterConstants.TwoDigitPrefix.NO_PREFIX,
+        FilterConstants.Sequence.NO_SEQUENCE,
         FilterConstants.Kind.POWER_OF_TEN);
   	  return stone;
     }
@@ -58,12 +60,13 @@ define(function(require) {
     		FilterConstants.Base.TEN,
     		repeat,
     		FilterConstants.TwoDigitPrefix.NO_PREFIX,
+        FilterConstants.Sequence.NO_SEQUENCE,
         FilterConstants.Kind.REPEAT);
     	return stone;
   	}
   }
 
-  // Create a big round number milestone like 12,000,000
+  // Create a big round number milestone like 70,000,000
   Milestone.prefixOneMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
     if (magnitude === FilterConstants.Magnitude.ONE) {
       return false; // too short for two-digit prefix.
@@ -78,12 +81,13 @@ define(function(require) {
         FilterConstants.Base.TEN,
         FilterConstants.RepeatingDigit.NONE,
         prefix,
+        FilterConstants.Sequence.NO_SEQUENCE,
         FilterConstants.Kind.PREFIX_ONE);
       return stone;
     }
   }
 
-  // Create a big round number milestone like 12,000,000
+  // Create a big round number milestone like 76,000,000
   Milestone.prefixTwoMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
     if (magnitude === FilterConstants.Magnitude.ONE) {
       return false; // too short for two-digit prefix.
@@ -98,7 +102,29 @@ define(function(require) {
         FilterConstants.Base.TEN,
         FilterConstants.RepeatingDigit.NONE,
         prefix,
+        FilterConstants.Sequence.NO_SEQUENCE,
         FilterConstants.Kind.PREFIX_TWO);
+      return stone;
+    }
+  }
+
+  // Create a sequence number milestone like 12,345
+  Milestone.sequenceMilestone = function(start_date, time_unit, magnitude, direction_value, sequence) {
+    if (magnitude.exponent <= 1 || magnitude.exponent >= 9) {
+      return false; // too short/long for a sequence.
+    } else if (sequence === FilterConstants.TwoDigitPrefix.NO_SEQUENCE) {
+      return false; // need a sequence.
+    } else {
+      var stone = new Milestone(
+        start_date,
+        time_unit,
+        magnitude,
+        direction_value,
+        FilterConstants.Base.TEN,
+        FilterConstants.RepeatingDigit.NONE,
+        FilterConstants.TwoDigitPrefix.NO_PREFIX,
+        FilterConstants.Sequence.NO_SEQUENCE,
+        FilterConstants.Kind.SEQUENCE);
       return stone;
     }
   }
@@ -177,15 +203,14 @@ define(function(require) {
     },
 
     displayValue: function() {
-    	if (this.base_unit === FilterConstants.Base.TEN &&
-    		  this.repeat === FilterConstants.RepeatingDigit.NONE &&
-    		  this.prefix === FilterConstants.TwoDigitPrefix.NO_PREFIX) {
+    	if (this.kind === FilterConstants.Kind.POWER_OF_TEN) {
 				return this.magnitude.text; // eg, "one million"
     	} else {
     		return Math.abs(this.rawValue); // eg, "77777"
     	}
     },
 
+    // Could potentially be used for "best match" sorting
     determine_weight: function() {
     	// give bonus for future results that are coming up soon
       var now = new Date();
@@ -222,7 +247,14 @@ define(function(require) {
       } else if (this.kind === FilterConstants.Kind.REPEAT) {
         // eg, 7777
         this.rawValue *= parseInt(Array(this.magnitude.exponent+2).join(this.repeat.value));
-  		} else {
+  		} else if (this.kind === FilterConstants.Kind.SEQUENCE) {
+        // eg, 1234
+        var str = "";
+        for (var i=1; i<=this.magnitude.exponent+1; i++) {
+          str = (this.sequence.value > 0) ? str+(i%10) : (i%10)+str;
+        }
+        this.rawValue *= parseInt(str);
+      } else {
   			// eg, 1000
     		this.rawValue *= Math.pow(this.base_unit.value, this.magnitude.exponent);
   		}
@@ -249,7 +281,9 @@ define(function(require) {
 		},
 
     set_visible: function(visible) {
-      this.html_element.style.display = visible ? "block" : "none";
+      if (this.html_element) {
+        this.html_element.style.display = visible ? "block" : "none";
+      }
     },
 
     is_visible: function() {
