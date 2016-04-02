@@ -81,6 +81,9 @@ define(function(require) {
     // Result page doesn't look good empty. Add an event so there's something to see.
     if (dateList.length == 0) {
       DateConverter.unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
+      DateConverter.unpackStartDates("Obama's Birth=1961-08-04").map(addDate);
+      DateConverter.unpackStartDates("Queen Elizabeth's Birth=1926-04-21").map(addDate);
+      DateConverter.unpackStartDates("Bastille Day=1789-07-14").map(addDate);
     }
 
     DateConverter.overwriteLocalStorageDates(dateList);

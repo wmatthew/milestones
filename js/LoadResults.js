@@ -44,6 +44,12 @@ define(function(require) {
   }
 
   function generateMilestones() {
+    // Clear all existing milestones + DOM elements
+    while(resultsContainer.firstChild) {
+      resultsContainer.removeChild(resultsContainer.firstChild);
+    }
+    results = [];
+
     function addMilestone(stone) {
       if (stone && stone.valid) {
         var res = document.createElement("p");
@@ -107,63 +113,24 @@ define(function(require) {
 
     // TODO: Possible future additions:
     // Sequences:          123, 1234, 12345, ... 54321, ...
-  }
-
-  function sortEvent(event) {
-    var src = event.srcElement;
-    sortResults(src);
+    sortResults();
   }
 
   // sort by date or by weight
-  function sortResults(src) {
-    src = src || document.getElementById("date_link");
-    var by_date = src.by_date;
-    src.className = "inactive";
-    src.otherLink.className = "";
-
+  function sortResults() {
     // remove everything
     while(resultsContainer.firstChild) {
       resultsContainer.removeChild(resultsContainer.firstChild);
     }
 
-    // sort
-    if (by_date) {
-      // earliest date first
-      results.sort(function(a,b) {return a.end_date - b.end_date});
-    } else {
-      // highest weight first
-      results.sort(function(a,b) {return b.weight - a.weight});
-    }
+    // sort, earliest date first
+    results.sort(function(a,b) {return a.end_date - b.end_date});
 
     // add back in, in order
     for (var result of results) {
       resultsContainer.appendChild(result.html_element);
     }
     return false;
-  }
-
-  function wireUpSortLinks() {
-    var date_link = document.createElement("a");
-    var best_link = document.createElement("a");
-
-    var date_label = document.createTextNode("date");
-    date_link.appendChild(date_label);
-    date_link.id = "date_link";
-    date_link.onclick = sortEvent;
-    date_link.by_date = true;
-    date_link.otherLink = best_link;
-
-    var best_label = document.createTextNode("best match");
-    best_link.appendChild(best_label);
-    best_link.onclick = sortEvent;
-    best_link.by_date = false;
-    best_link.otherLink = date_link;
-
-    var sortContainer = document.getElementById("sort_links");
-    sortContainer.appendChild(document.createTextNode("Sort by "));
-    sortContainer.appendChild(date_link);
-    sortContainer.appendChild(document.createTextNode(" / "));
-    sortContainer.appendChild(best_link);
   }
 
   function wireUpInputs() {
@@ -292,14 +259,10 @@ define(function(require) {
       startDates = newDateArray;
       DateConverter.overwriteLocalStorageDates(newDateArray);
 
-      // clear milestones, incl. dom elements
-      clearMilestones();
-
       // regenerate milestones
       generateMilestones();
 
-      // sort and update results
-      sortResults();
+      // update results
       updateResults();
 
       // remove events panel
@@ -313,22 +276,18 @@ define(function(require) {
     }
   }
 
-  function clearMilestones() {
-    while(resultsContainer.firstChild) {
-      resultsContainer.removeChild(resultsContainer.firstChild);
-    }
-    results = [];
-  }
-
   function addEditEventsLink() {
     // Link at the bottom of events panel to start editing
+    var buttonRow = document.createElement('div');
+    buttonRow.className = "buttonRow";
     var eventsPanel = document.getElementById('events_panel');
     var optionsSection = eventsPanel.getElementsByTagName('div')[0];
     var editLink = document.createElement('a');
-    editLink.className = "editEventsLink";
-    editLink.textContent = '+ Add / Edit Events';
+    editLink.className = "editEventsLink pillButton";
+    editLink.textContent = 'Add Events';
     editLink.onclick = showEventsEditor;
-    optionsSection.appendChild(editLink);
+    optionsSection.appendChild(buttonRow);
+    buttonRow.appendChild(editLink);
   }
 
   function wireUpEventsEditor() {
@@ -350,18 +309,19 @@ define(function(require) {
     eventsPanel.parentNode.insertBefore(editPanel, eventsPanel);
 
     // Link at bottom of edit panel to stop editing
+    var buttonRow = document.createElement('div');
+    buttonRow.className = "buttonRow";
     var stopEditLink = document.createElement('a');
-    stopEditLink.className = "editEventsLink";
+    stopEditLink.className = "editEventsLink pillButton";
     stopEditLink.textContent = 'Done';
     stopEditLink.onclick = hideEventsEditor;
-    editPanel.appendChild(stopEditLink);
+    editPanel.appendChild(buttonRow);
+    buttonRow.appendChild(stopEditLink);
   }
 
   wireUpInputs();
-  wireUpSortLinks();
   wireUpEventsEditor();
   generateMilestones();
-  sortResults();
   updateResults();
   resultsHeader.textContent = "Results"; // Informs user loading is complete.
 });
