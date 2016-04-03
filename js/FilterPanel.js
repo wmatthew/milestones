@@ -127,7 +127,7 @@ define(function(require) {
 	    }
 
 	    function checkAllHandler(event) {
-		    var node = event.srcElement;
+		    var node = event.target;
 		    var checkBoxes = node.targetSection.getElementsByTagName("input");
 		    for (var i=0; i<checkBoxes.length; i++) {
 		      var child = checkBoxes[i];
@@ -137,7 +137,7 @@ define(function(require) {
 		  }
 
 		  function onlyThisOptionHandler(event) {
-		    var node = event.srcElement;
+		    var node = event.target;
 		    var checkBoxes = node.targetSection.getElementsByTagName("input");
 		    for (var i=0; i<checkBoxes.length; i++) {
 		      var child = checkBoxes[i];
@@ -166,7 +166,7 @@ define(function(require) {
 
   // show or hide one section
   function toggleOptionSectionEvent(event) {
-    var node = event.srcElement.parentNode;
+    var node = event.target.parentNode;
     toggleOptionSection(node);
     return false;
   }

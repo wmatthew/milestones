@@ -218,24 +218,22 @@ define(function(require) {
     	// give bonus for future results that are coming up soon
       var now = new Date();
     	var timeDiff = (this.end_date - now) / MSECS_PER_DAY;
-      var soonBonus = 0;
 
-    	if (timeDiff < 0) {
+      var sameDay = (now.getDate()==this.end_date.getDate() &&
+                     now.getMonth()==this.end_date.getMonth() &&
+                     now.getFullYear()==this.end_date.getFullYear());
+
+      if (sameDay) {
+        this.era = FilterConstants.Era.TODAY;
+      } else if (timeDiff < 0) {
     		this.era = FilterConstants.Era.PAST;
-    		soonBonus = 0;
-    	} else if (timeDiff < 1 && now.getDate() === this.end_date.getDate()) {
-    		this.era = FilterConstants.Era.TODAY;
-    		soonBonus = 1000;
     	} else {
     		this.era = FilterConstants.Era.FUTURE;
-        timeDiff = Math.E * Math.max(1, timeDiff); // E or more; increases as dates get farther out
-    		soonBonus = 100 / Math.log(timeDiff); // 100 or less; drops as dates get farther out
     	}
 
     	this.weight = this.magnitude.weight +
                     this.time_unit.weight +
-                    this.base_unit.weight +
-                    soonBonus;
+                    this.base_unit.weight;
     },
 
 		determine_end_date: function() {

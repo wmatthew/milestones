@@ -1,197 +1,30 @@
 "use strict";
 define(function(require) {
 
-  // Imports
+  // Import
   var Milestone = require('Milestone');
-  var FilterConstants = Milestone.getFilterConstants();
   var DateConverter = require('DateConverter');
   var FilterPanel = require('FilterPanel');
   var Pikaday = require('lib/pikaday/pikaday');
+  var InfiniteScroll = require('InfiniteScroll');
+  var MilestoneGenerator = require('MilestoneGenerator');
 
-  // Set things up
-  var startDates = DateConverter.getStartDates();
+  // Declare / Initialize
+  var startDates;
   var filterPanel;
 
-  var resultsContainer = document.getElementById("results_container");
-  var resultCount = document.getElementById("result_count");
-  var resultsHeader = document.getElementById("results_header");
+  // Arrays
   var results = [];
   var pickers = [];
 
-  var htmlDownArrow = "&#9660;";
-  var htmlRightArrow = "&#9654;";
-
-  var earliestShown = new Date();
-  earliestShown.setHours(0,0,0,0);
-
-  // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
-  function updateResults(numToReveal = 0) {
-    var all_checkboxes = filterPanel.getAllCheckboxes();
-    var visible_count = 0; // number we add to DOM
-    var found_count = 0; // max the user could see with these filter options
-    var newly_revealed = 0;
-
-    var minResultsShown = 50;
-    var earlierExist = false;
-    var laterExist = false;
-    var previousElement = false;
-    var previousVisibleElementHeader = false;
-
-    for (var result of results) {
-      var filterVisible = !isHiddenByFilters(result);
-      var afterStart = result.end_date > earliestShown;
-      var showMore = visible_count < minResultsShown;
-      var revealMore = newly_revealed < numToReveal;
-
-      if (filterVisible && afterStart && (showMore || revealMore)) {
-        if (!result.is_visible()) {
-          newly_revealed ++;
-        }
-        if (!result.html_element) {
-          var resNode = document.createElement("p");
-          resNode.className = "entry";
-          result.attachElement(resNode);
-          insertAfterChild(resultsContainer, previousElement, result.html_element);
-        }
-        var currentElementHeader = result.html_element.firstChild;
-        var repeatHeader = (currentElementHeader.textContent == previousVisibleElementHeader.textContent);
-        currentElementHeader.style.display = repeatHeader ? 'none' : 'block';
-        previousVisibleElementHeader = currentElementHeader;
-        visible_count++;
-      }
-
-      // bookkeeping and follow-ups.
-      result.set_visible(filterVisible);
-      earlierExist = earlierExist || (filterVisible && !afterStart);
-      laterExist = laterExist || (filterVisible && !showMore);
-      if (filterVisible) found_count ++;
-      if (result.html_element) {
-        previousElement = result.html_element;
-      }
-
-      // Helper subfunctions
-      function isHiddenByFilters(result) {
-        for (var checkbox of all_checkboxes) {
-          if (!checkbox.checked && checkbox.testing_function(result)) {
-            return true;
-          }
-        }
-        return false;
-      }
-
-      function insertAfterChild(parent, child, newNode) {
-        var nextSib = child.nextSibling;
-        if (nextSib) {
-          parent.insertBefore(newNode, nextSib);
-        } else {
-          parent.appendChild(newNode);
-        }
-      }
-    }
-
-    if (numToReveal > 0) {
-      console.log("revealed " + newly_revealed + " more items. (goal: " + numToReveal + ")");
-    }
-
-    document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
-    document.getElementById("later_results").style.display = laterExist ? 'block' : 'none';
-
-    if (visible_count === results.length) {
-      resultCount.textContent = "showing all " + results.length + " results";
-    } else {
-      resultCount.textContent = visible_count + " shown (" + results.length + " total)";
-    }
-  }
-
   function generateMilestones() {
-    // Clear all existing milestones + DOM elements
-    while(resultsContainer.firstChild) {
-      resultsContainer.removeChild(resultsContainer.firstChild);
-    }
-    results = [];
-
-    function addMilestone(stone) {
-      if (stone && stone.valid) {
-        results.push(stone);
-      }
-    }
-
-    // Basic numbers (1, 10, 100...) in all bases
-    for (var direction of FilterConstants.DirectionValues) {
-      for (var start_date of startDates) {
-        for (var magnitude of FilterConstants.MagnitudeValues) {
-          for (var time_unit of FilterConstants.TimeUnitValues) {
-            for (var base_unit of FilterConstants.BaseValues) {
-              addMilestone(Milestone.baseMilestone(start_date, time_unit, magnitude, direction, base_unit));
-            }
-          }
-        }
-      }
-    }
-
-    // Repeated digits (111, 222, 333 ...) base 10 only
-    for (var direction of FilterConstants.DirectionValues) {
-      for (var start_date of startDates) {
-        for (var magnitude of FilterConstants.MagnitudeValues) {
-          for (var time_unit of FilterConstants.TimeUnitValues) {
-            for (var repeat of FilterConstants.RepeatingDigitValues) {
-              addMilestone(Milestone.repeatDigitMilestone(start_date, time_unit, magnitude, direction, repeat));
-            }
-          }
-        }
-      }
-    }
-
-    // One leading digit: (2000, 3000, 4000). base 10 only.
-    for (var direction of FilterConstants.DirectionValues) {
-      for (var start_date of startDates) {
-        for (var magnitude of FilterConstants.MagnitudeValues) {
-          for (var time_unit of FilterConstants.TimeUnitValues) {
-            for (var prefix of FilterConstants.OneDigitPrefixValues) {
-              addMilestone(Milestone.prefixOneMilestone(start_date, time_unit, magnitude, direction, prefix));
-            }
-          }
-        }
-      }
-    }
-
-    // Two leading digits: (12000, 13000, 14000). base 10 only.
-    for (var direction of FilterConstants.DirectionValues) {
-      for (var start_date of startDates) {
-        for (var magnitude of FilterConstants.MagnitudeValues) {
-          for (var time_unit of FilterConstants.TimeUnitValues) {
-            for (var prefix of FilterConstants.TwoDigitPrefixValues) {
-              addMilestone(Milestone.prefixTwoMilestone(start_date, time_unit, magnitude, direction, prefix));
-            }
-          }
-        }
-      }
-    }
-
-    // Sequences: (12345, 54321). base 10 only.
-    for (var direction of FilterConstants.DirectionValues) {
-      for (var start_date of startDates) {
-        for (var magnitude of FilterConstants.MagnitudeValues) {
-          for (var time_unit of FilterConstants.TimeUnitValues) {
-            for (var sequence of FilterConstants.SequenceValues) {
-              addMilestone(Milestone.sequenceMilestone(start_date, time_unit, magnitude, direction, sequence));
-            }
-          }
-        }
-      }
-    }
-
-    sortResults();
-    updateResults();
-  }
-
-  // sort, earliest date first
-  function sortResults() {
-    results.sort(function(a,b) {return a.end_date - b.end_date});
+    MilestoneGenerator.generate();
+    results.sort(function(a,b) {return a.end_date - b.end_date}); // earliest date first
+    InfiniteScroll.updateResults();
   }
 
   function wireUpFilterPanel() {
-    filterPanel = new FilterPanel(updateResults);
+    filterPanel = new FilterPanel(InfiniteScroll.updateResults);
     filterPanel.attachToElement(document.getElementById("control_panel"));
     filterPanel.addAllSubpanels(startDates);
   }
@@ -208,12 +41,12 @@ define(function(require) {
 
     function deleteEventHandler(event) {
       // Remove the element from the event editor
-      var node = event.srcElement;
+      var node = event.target;
       node.parentNode.parentNode.removeChild(node.parentNode);
     }
 
     function changeEventHandler(event) {
-      var node = event.srcElement;
+      var node = event.target;
       var row = node.parentNode;
       var labelInput = row.getElementsByClassName("editEventLabel")[0];
       var dateInput = row.getElementsByClassName("editEventDate")[0];
@@ -287,7 +120,6 @@ define(function(require) {
     editPanel.style.display = "block";
   }
 
-  // TODO
   function hideEventsEditor() {
     var eventsPanel = document.getElementById('events_panel');
     eventsPanel.style.display = "block";
@@ -378,35 +210,16 @@ define(function(require) {
     buttonRow.appendChild(stopEditLink);
   }
 
-  function showEarlierEvent() {
-    console.log("show earlier not implemented yet");
-    // updateResults();
-  }
-
-  function showLaterEvent() {
-    console.log("show later");
-    var numToReveal = 50;
-    updateResults(numToReveal);
-  }
-
-  function wireUpInfinteScroll() {
-    var showEarlier = document.createElement("div");
-    showEarlier.id = 'earlier_results';
-    showEarlier.textContent = "show earlier results";
-    showEarlier.onclick = showEarlierEvent;
-    resultsContainer.parentNode.insertBefore(showEarlier, resultsContainer);
-
-    var showLater = document.createElement("div");
-    showLater.id = 'later_results';
-    showLater.textContent = "show later results";
-    showLater.onclick = showLaterEvent;
-    resultsContainer.parentNode.appendChild(showLater);
-  }
-
-  wireUpInfinteScroll();
+  // Initialization
+  startDates = DateConverter.getStartDates();
   wireUpFilterPanel();
+  InfiniteScroll.wireUpInfiniteScroll();
   wireUpEventsEditor();
-  generateMilestones();
-  resultsHeader.textContent = "Results"; // Shows user loading is complete.
+  MilestoneGenerator.initialize(results, startDates);
+  InfiniteScroll.initialize(results, filterPanel);
+
+  setTimeout(function() { // don't block rendering
+    generateMilestones();
+  }, 0);
 });
 
