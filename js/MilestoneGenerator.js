@@ -16,6 +16,7 @@ define(function(require) {
   // DOM elements
   var resultsContainer = document.getElementById("results_container");
   var resultsHeader = document.getElementById("results_header");
+  var loadingCount;
 
   MilestoneGenerator.initialize = function(res_arr, start_dates) {
     results = res_arr;
@@ -41,22 +42,34 @@ define(function(require) {
     }
   }
 
-  MilestoneGenerator.generate = function() {
+  MilestoneGenerator.generate = function(updateMethod) {
     asyncChain([
       clearOldMilestones,
-      generateSequences,
+      startLoadingProgress,
       generateRepeats,
-      generateOnePrefixes,
       generateTwoPrefixes,
+      generateOnePrefixes,
       generatePowersOfTen,
-      reportCompletion,
+      generateSequences,
+      sortGeneratedResults,
       clearResultsContainer,
+      reportCompletion,
+      updateMethod,
       ]);
   }
 
+  function sortGeneratedResults() {
+    showLoadingUpdate("Sorting");
+    results.sort(function(a,b) {return a.end_date - b.end_date}); // earliest date first
+  }
+
   function asyncChain(functions) {
-    for (var func of functions) {
-      func.call();
+    var func = functions.shift();
+    if (func) {
+      setTimeout(function() {
+        func.call();
+        asyncChain(functions);
+      }, 200);
     }
   }
 
@@ -67,6 +80,7 @@ define(function(require) {
 
   // Sequences: (12345, 54321). base 10 only.
   function generateSequences() {
+    showLoadingUpdate("Generating Sequences");
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
@@ -82,6 +96,7 @@ define(function(require) {
 
   // Two leading digits: (12000, 13000, 14000). base 10 only.
   function generateTwoPrefixes() {
+    showLoadingUpdate("Generating Round Numbers");
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
@@ -97,6 +112,7 @@ define(function(require) {
 
   // One leading digit: (2000, 3000, 4000). base 10 only.
   function generateOnePrefixes() {
+    showLoadingUpdate("Generating Very Round Numbers");
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
@@ -112,6 +128,7 @@ define(function(require) {
 
   // Repeated digits (111, 222, 333 ...) base 10 only
   function generateRepeats() {
+    showLoadingUpdate("Generating Repeating Numbers");
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
@@ -127,6 +144,7 @@ define(function(require) {
 
   // Basic numbers (1, 10, 100...) in all bases
   function generatePowersOfTen() {
+    showLoadingUpdate("Generating Powers of Ten");
     for (var direction of FilterConstants.DirectionValues) {
       for (var start_date of startDates) {
         for (var magnitude of FilterConstants.MagnitudeValues) {
@@ -140,14 +158,24 @@ define(function(require) {
     }
   }
 
-  // function startLoadingProgress() {
-  //   // TODO
-  // }
+  function startLoadingProgress() {
+    loadingCount = document.createElement("div");
+    updateLoadingCount();
+    resultsContainer.appendChild(loadingCount);
+
+    // TODO: show spinner
+  }
+
+  function updateLoadingCount() {
+    loadingCount.textContent = results.length + " milestones";
+  }
 
   function showLoadingUpdate(message) {
+    console.log("Loading: " + message);
     var msg = document.createElement("div");
-    msg.textContent = message;
+    msg.textContent = message + '...';
     resultsContainer.appendChild(msg);
+    updateLoadingCount();
   }
 
   return MilestoneGenerator;

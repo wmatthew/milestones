@@ -26,7 +26,7 @@ define(function(require) {
 
   	earliestShown = new Date();
     earliestShown.setHours(0,0,0,0);
-  	AsyncCleaners.initialize(results);
+  	AsyncCleaners.initialize(results, InfiniteScroll.isHiddenByFilters);
   }
 
   InfiniteScroll.isHiddenByFilters = function(result) {
@@ -40,16 +40,16 @@ define(function(require) {
   }
 
   //================================================================================================
+  // Event handling functions
+
   function showEarlierEvent(event) {
-    var node = event.currentTarget;
-    showEarlierNode(node);
+    showEarlierNode(event.currentTarget);
   }
 
   function showLaterEvent(event) {
-    var node = event.currentTarget;
-    showLaterNode(node);
+    showLaterNode(event.currentTarget);
   }
-  //================================================================================================
+
   function showEarlierNode(node) {
     node.spin();
     setTimeout(function() {
@@ -83,15 +83,10 @@ define(function(require) {
       var hidden = !result.is_visible();
 
       if (earlySection && showable && hidden && show_more) {
-        if (!result.html_element) { // TODO: this block is impl elsewhere; consolidate. move into set_visible?
-          var resNode = document.createElement("p");
-          resNode.className = "entry";
-          result.attachElement(resNode);
+        if (!result.html_element) {
+          console.log("showEarlierAsync: adding 1");
+          var resNode = result.getOrCreateElement(resNode);
           insertBeforeSibling(resultsContainer, previousElement, resNode);
-          // TODO: it would be nice if entire days showed up as units at the top of the results.
-          // We could accomplish this by:
-          // - continuing going here until we reach a new header.
-          // - revealing 1 month at a time.
         }
         result.set_visible(true);
         newly_revealed++;
@@ -104,8 +99,7 @@ define(function(require) {
     }
 
     // post-loop bookkeeping
-    AsyncCleaners.updateVisibleCount();
-    AsyncCleaners.hideRepeatedHeaders();
+    AsyncCleaners.cleanUp();
 
     // TODO: move to HTML util class
     function insertBeforeSibling(parent, sibling, newNode) {
@@ -123,7 +117,7 @@ define(function(require) {
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   InfiniteScroll.updateResults = function(numToReveal = 0) {
     var all_checkboxes = filterPanel.getAllCheckboxes();
-    var visible_count = 0; // number we add to DOM
+    var visible_count = 0; // number of user-visible results
     var found_count = 0; // max the user could see with these filter options
     var newly_revealed = 0;
 
@@ -143,9 +137,8 @@ define(function(require) {
           newly_revealed ++;
         }
         if (!result.html_element) {
-          var resNode = document.createElement("p");
-          resNode.className = "entry";
-          result.attachElement(resNode);
+          console.log("updateResults: adding 1");
+          var resNode = result.getOrCreateElement(resNode);
           insertAfterChild(resultsContainer, previousElement, result.html_element);
         }
         visible_count++;
@@ -161,7 +154,7 @@ define(function(require) {
       }
 
       // Helper subfunctions
-      // TODO: move to a util class
+      // TODO: defined in 2 places. consolidate, move to a util class
       function insertAfterChild(parent, sibling, newNode) {
         if (sibling) {
           parent.insertBefore(newNode, sibling.nextSibling);
@@ -174,8 +167,7 @@ define(function(require) {
     // post-loop bookkeeping
     document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
     document.getElementById("later_results").style.display = laterExist ? 'block' : 'none';
-    AsyncCleaners.hideRepeatedHeaders();
-    AsyncCleaners.updateVisibleCount();
+    AsyncCleaners.cleanUp();
   }
 
   //================================================================================================

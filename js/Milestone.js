@@ -132,17 +132,25 @@ define(function(require) {
   Milestone.prototype = {
   	constructor: Milestone,
 
-		attachElement: function(element) {
+    // Creates an element if needed.
+    // This won't attach it to the DOM; that's up to the caller.
+		getOrCreateElement: function() {
 			if (!this.valid) {
 				return;
 			}
 
-			this.html_element = element;
+      if (this.html_element) {
+        return this.html_element;
+      }
+
+      console.log("+");
+      this.html_element = document.createElement("p");
+      this.html_element.className = "entry";
 
 			this.header = document.createElement("h3");
-			var headerText = document.createTextNode(dateFormat(this.end_date, "mmmm dS, ") + this.displayYear());
+			var headerTextNode = document.createTextNode(this.getHeaderText());
       this.html_element.appendChild(this.header);
-      this.header.appendChild(headerText);
+      this.header.appendChild(headerTextNode);
 
       var text = document.createTextNode(this.displayText());
 			this.html_element.appendChild(text);
@@ -155,14 +163,12 @@ define(function(require) {
         baseNote.textContent = this.displayBaseNote();
 				this.html_element.appendChild(baseNote);
       }
-
-      // [Debug only]
-      // if (true) {
-      //   this.html_element.appendChild(document.createElement("br"));
-      //   var baseText = document.createTextNode("<<weight: " + this.weight + ">>");
-      //   this.html_element.appendChild(baseText);
-      // }
+      return this.html_element;
 		},
+
+    getHeaderText: function() {
+      return dateFormat(this.end_date, "mmmm dS, ") + this.displayYear();
+    },
 
     displayText: function() {
       var pluralizedUnits = this.time_unit.text + ((this.magnitude.value == 1) ? '' : 's');

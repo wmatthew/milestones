@@ -1,7 +1,7 @@
 "use strict";
 define(function(require) {
 
-  // Import
+  // Imports
   var Milestone = require('Milestone');
   var DateConverter = require('DateConverter');
   var FilterPanel = require('FilterPanel');
@@ -9,7 +9,7 @@ define(function(require) {
   var InfiniteScroll = require('InfiniteScroll');
   var MilestoneGenerator = require('MilestoneGenerator');
 
-  // Declare / Initialize
+  // Vars
   var startDates;
   var filterPanel;
 
@@ -18,9 +18,7 @@ define(function(require) {
   var pickers = [];
 
   function generateMilestones() {
-    MilestoneGenerator.generate();
-    results.sort(function(a,b) {return a.end_date - b.end_date}); // earliest date first
-    InfiniteScroll.updateResults();
+    MilestoneGenerator.generate(InfiniteScroll.updateResults);
   }
 
   function wireUpFilterPanel() {
@@ -149,7 +147,8 @@ define(function(require) {
 
     if (anyEventsChanged) {
       // update startDates array + update localStorage
-      startDates = newDateArray;
+      startDates.length = 0;
+      newDateArray.forEach(function(x) {startDates.push(x);});
       DateConverter.overwriteLocalStorageDates(newDateArray);
 
       // regenerate milestones+update
@@ -217,9 +216,7 @@ define(function(require) {
   wireUpEventsEditor();
   MilestoneGenerator.initialize(results, startDates);
   InfiniteScroll.initialize(results, filterPanel);
-
-  setTimeout(function() { // don't block rendering
-    generateMilestones();
-  }, 0);
+  generateMilestones();
+  // previous call was async; careful adding stuff here.
 });
 
