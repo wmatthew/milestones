@@ -43,7 +43,8 @@ define(function(require) {
   // Show Later Async
 
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
-  InfiniteScroll.updateResults = function(numToReveal = 0) {
+  InfiniteScroll.updateResults = function(numToReveal) {
+    numToReveal = numToReveal ||  0;
     var all_checkboxes = filterPanel.getAllCheckboxes();
     var visible_count = 0; // number of user-visible results
     var found_count = 0; // max the user could see with these filter options
