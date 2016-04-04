@@ -17,6 +17,7 @@ define(function(require) {
 	  this.prefix = prefix;
     this.sequence = sequence;
     this.kind = kind;
+    this.valid = true;
 
 	  this.determine_end_date();
 	  this.determine_weight();
@@ -272,12 +273,19 @@ define(function(require) {
 				this.end_date = new Date(this.start_date.value);
 				this.end_date.setYear(this.end_date.getFullYear() + this.rawValue);
 			} else {
-				var days_forward = this.rawValue * this.time_unit.value / MSECS_PER_DAY;
 				this.end_date = new Date(this.start_date.value);
-				this.end_date.setDate(this.start_date.value.getDate() + days_forward);
+        var msecs_forward = this.rawValue * this.time_unit.value;
+				this.end_date.setTime(this.start_date.value.getTime() + msecs_forward);
 			}
 
-			this.valid = !isNaN(this.end_date);
+      if (this.start_date.value.getTime() == this.end_date.getTime()) {
+        this.valid = false;
+      }
+
+      this.end_date = new Date(this.end_date); // necessary to catch invalid dates in Safari
+			if (isNaN(this.end_date)) {
+        this.valid = false;
+      }
 		},
 
     set_visible: function(visible) {

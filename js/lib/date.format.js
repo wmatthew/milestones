@@ -37,7 +37,7 @@ var dateFormat = function () {
 
 		// Passing date through Date applies Date.parse, if necessary
 		date = date ? new Date(date) : new Date;
-		if (isNaN(date)) throw SyntaxError("invalid date");
+		if (isNaN(date)) return "invalid"; // throw SyntaxError("invalid date"); // suppress safari err
 
 		mask = String(dF.masks[mask] || mask || dF.masks["default"]);
 
