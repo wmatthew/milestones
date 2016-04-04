@@ -26,8 +26,10 @@ define(function(require) {
   }
 
   AsyncCleaners.cleanUp = function() {
-    setTimeout(hideRepeatedHeaders, 0);
-    setTimeout(fixPartials, 0);
+    setTimeout(function() {
+      fixPartials();
+      hideRepeatedHeaders();
+    }, 0);
     setTimeout(updateVisibleCount, 0);
   }
 
@@ -46,42 +48,42 @@ define(function(require) {
     }
   }
 
-  // If a day has multiple (unfiltered) milestones, make sure we're showing
-  // all or none of them.
+  // If we're showing any milestones for a day, make sure we show all milestones for that day
+  // (not counting ones hidden by filters)
   function fixPartials() {
-    var groupHeaderText = false;
-    var group = [];
+    // The 'zone' we're tracking is the range of milestones with identical headers.
+    var currentZoneText = false;
+    var currentZoneVisible = false;
     var previousElement = false;
 
-    for (var result of results) {
+    for (var i=0; i<results.length; i++) {
+      var result = results[i];
       var showable = !isHiddenByFilters(result);
       if (showable) {
-        var currentHeaderText = result.getHeaderText();
-        if (currentHeaderText == groupHeaderText) {
-          group.push(result);
-        } else {
-          // process old group
-          var anyVisible = group.some(function(r) {return r.is_visible();});
-          if (anyVisible) {
-            group.forEach(function(r){
-              // create if needed
-              if (!r.html_element) {
-                //console.log("fixPartials: add 1");
-                var resNode = r.getOrCreateElement(resNode);
-                // TODO: adding in wrong order??
-                insertAfterChild(resultsContainer, previousElement, r.html_element);
-              }
-              r.set_visible(true);
-            });
+        var resHeadText = result.getHeaderText();
+        if (currentZoneText == resHeadText) {
+          if (currentZoneVisible) {
+            if (!result.html_element) {
+              var resNode = result.getOrCreateElement();
+              insertAfterChild(resultsContainer, previousElement, result.html_element);
+            }
+            result.set_visible(true);
           }
-
-          // set up new group
-          group.length = 0;
-          group.push(result);
-          groupHeaderText = currentHeaderText;
+        } else {
+          currentZoneText = resHeadText;
+          currentZoneVisible = false;
+          for (var j=i+1; j<results.length; j++) {
+            var nextResult = results[j];
+            var nextHeadText = nextResult.getHeaderText();
+            if (nextHeadText != currentZoneText) {
+              break;
+            } else if (nextResult.is_visible()) {
+              currentZoneVisible = true;
+              break;
+            }
+          }
         }
       }
-
       // end-of-loop bookkeeping
       if (result.html_element) {
         previousElement = result.html_element;

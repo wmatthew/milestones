@@ -61,7 +61,7 @@ define(function(require) {
   function showLaterNode(node) {
     console.log("show later");
     node.spin();
-    var numToReveal = 1; // TODO: 50
+    var numToReveal = 50;
     setTimeout(function() {
       InfiniteScroll.updateResults(numToReveal);
       node.stop();
@@ -70,7 +70,7 @@ define(function(require) {
   //================================================================================================
   // Show Earlier Async
   function showEarlierAsync() {
-    var numToReveal = 1; // TODO: 10? Or maybe 1 month's worth?
+    var numToReveal = 10; // TODO: one month's worth?
     var newly_revealed = 0;
     var previousElement = false; // temporally before, but lower in display order
 
@@ -84,8 +84,7 @@ define(function(require) {
 
       if (earlySection && showable && hidden && show_more) {
         if (!result.html_element) {
-          console.log("showEarlierAsync: adding 1");
-          var resNode = result.getOrCreateElement(resNode);
+          var resNode = result.getOrCreateElement();
           insertBeforeSibling(resultsContainer, previousElement, resNode);
         }
         result.set_visible(true);
@@ -121,7 +120,7 @@ define(function(require) {
     var found_count = 0; // max the user could see with these filter options
     var newly_revealed = 0;
 
-    var minResultsShown = 3; // TODO: 50
+    var minResultsShown = 50;
     var earlierExist = false;
     var laterExist = false;
     var previousElement = false;
@@ -137,8 +136,7 @@ define(function(require) {
           newly_revealed ++;
         }
         if (!result.html_element) {
-          console.log("updateResults: adding 1");
-          var resNode = result.getOrCreateElement(resNode);
+          var resNode = result.getOrCreateElement();
           insertAfterChild(resultsContainer, previousElement, result.html_element);
         }
         visible_count++;
@@ -184,7 +182,7 @@ define(function(require) {
     showLater.id = 'later_results';
     showLater.style.display = 'none';
     showLater.onclick = showLaterEvent;
-    addLabelAndSpinner(showLater, "show later results");
+    addLabelAndSpinner(showLater, "show more results");
     resultsContainer.parentNode.appendChild(showLater);
 
     function isVisible(elem) {

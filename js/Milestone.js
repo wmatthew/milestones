@@ -143,7 +143,6 @@ define(function(require) {
         return this.html_element;
       }
 
-      console.log("+");
       this.html_element = document.createElement("p");
       this.html_element.className = "entry";
 
@@ -219,15 +218,13 @@ define(function(require) {
     	}
     },
 
-    // Could potentially be used for "best match" sorting
+    // Could be used for "best match" sorting
     determine_weight: function() {
-    	// give bonus for future results that are coming up soon
       var now = new Date();
     	var timeDiff = (this.end_date - now) / MSECS_PER_DAY;
-
-      var sameDay = (now.getDate()==this.end_date.getDate() &&
-                     now.getMonth()==this.end_date.getMonth() &&
-                     now.getFullYear()==this.end_date.getFullYear());
+      var sameDay = (now.getDate() == this.end_date.getDate() &&
+                     now.getMonth() == this.end_date.getMonth() &&
+                     now.getFullYear() == this.end_date.getFullYear());
 
       if (sameDay) {
         this.era = FilterConstants.Era.TODAY;
@@ -280,11 +277,7 @@ define(function(require) {
 				this.end_date.setDate(this.start_date.value.getDate() + days_forward);
 			}
 
-			if (isNaN(this.end_date)) {
-				this.valid = false;
-			} else {
-				this.valid = true;
-			}
+			this.valid = !isNaN(this.end_date);
 		},
 
     set_visible: function(visible) {

@@ -5,18 +5,16 @@ define(function(require) {
   var Milestone = require('Milestone');
   var DateConverter = require('DateConverter');
   var FilterPanel = require('FilterPanel');
-  var Pikaday = require('lib/pikaday/pikaday');
   var InfiniteScroll = require('InfiniteScroll');
   var MilestoneGenerator = require('MilestoneGenerator');
+  var EventsEditor = require('EventsEditor');
 
   // Vars
   var startDates;
   var filterPanel;
-
-  // Arrays
   var results = [];
-  var pickers = [];
 
+  // Generate new milestones and do all appropriate followup.
   function generateMilestones() {
     MilestoneGenerator.generate(InfiniteScroll.updateResults);
   }
@@ -27,196 +25,17 @@ define(function(require) {
     filterPanel.addAllSubpanels(startDates);
   }
 
-  function showEventsEditor() {
-    // clear out the editing panel
-    var editor = document.getElementById("editPanelInner");
-    while(editor.firstChild) {
-      editor.removeChild(editor.firstChild);
-    }
-    for (var picker of pickers) {
-      picker.destroy();
-    }
-
-    function deleteEventHandler(event) {
-      // Remove the element from the event editor
-      var node = event.target;
-      node.parentNode.parentNode.removeChild(node.parentNode);
-    }
-
-    function changeEventHandler(event) {
-      var node = event.target;
-      var row = node.parentNode;
-      var labelInput = row.getElementsByClassName("editEventLabel")[0];
-      var dateInput = row.getElementsByClassName("editEventDate")[0];
-
-      // TODO: highlight date as invalid if needed
-      var canary = new Date(dateInput.value);
-      if (row.isNewRow && isNaN(canary) && dateInput.value.length > 0) {
-        dateInput.className = "editEventDate invalid";
-      } else if (!row.isNewRow && isNaN(canary)) {
-        dateInput.className = "editEventDate invalid";
-      } else {
-        dateInput.className = "editEventDate";
-      }
-
-      if (labelInput.value.includes("?") || labelInput.value.includes("&") || labelInput.value.includes("=")) {
-        labelInput.className = "editEventLabel invalid";
-      } else {
-        labelInput.className = "editEventLabel";
-      }
-
-      if (row.isNewRow &&
-          labelInput.value != "" &&
-          dateInput.value != "") {
-        row.isNewRow = false; // no longer the new guy
-        row.deleteButton.style.display = 'inline';
-        addEventRow();
-      }
-    }
-
-    // If date is not set, add a row for a possible new event.
-    function addEventRow(date) {
-      var row = document.createElement("div");
-      row.isNewRow = !date;
-      var labelInput = document.createElement("input");
-        labelInput.type = "text";
-        labelInput.className = "editEventLabel";
-        labelInput.value = date ? date.shortLabel : "";
-        labelInput.placeholder = date ? date.shortLabel : "New Event";
-        labelInput.onchange = changeEventHandler;
-        row.appendChild(labelInput);
-      var dateInput = document.createElement("input");
-        dateInput.type = "text";
-        dateInput.className = "editEventDate";
-        dateInput.placeholder = date ? dateFormat(date.value, "mmm dS, yyyy") : "Date";
-        var picker = new Pikaday({ field: dateInput });
-        pickers.push(picker);
-        if (date) picker.setDate(date.value);
-        dateInput.onchange = changeEventHandler;
-        row.appendChild(dateInput);
-      var deleteButton = document.createElement("a");
-        deleteButton.innerHTML = "&#10006;"
-        deleteButton.className = "deleteButton";
-        deleteButton.onclick = deleteEventHandler;
-        deleteButton.style.display = date ? 'inline' : 'none';
-        row.deleteButton = deleteButton;
-        row.appendChild(deleteButton);
-      editor.appendChild(row);
-    }
-
-    // add a row for each current event, and delete buttons
-    for (var date of startDates) {
-      addEventRow(date);
-    }
-
-    addEventRow();
-
-    var eventsPanel = document.getElementById('events_panel');
-    eventsPanel.style.display = "none";
-
-    var editPanel = document.getElementById('editPanel');
-    editPanel.style.display = "block";
-  }
-
-  function hideEventsEditor() {
-    var eventsPanel = document.getElementById('events_panel');
-    eventsPanel.style.display = "block";
-
-    var editPanel = document.getElementById('editPanel');
-    editPanel.style.display = "none";
-
-    var newDateArray = getDateArray();
-
-    function getDateArray() {
-      var date_arr = [];
-      var rows = document.getElementById("editPanelInner").children;
-      for (var i=0; i<rows.length; i++) {
-        var row = rows[i];
-        var label = row.getElementsByClassName("editEventLabel")[0].value;
-        var date = new Date(row.getElementsByClassName("editEventDate")[0].value);
-        if (!isNaN(date)) {
-          date_arr.push(DateConverter.toHash(date, label));
-        }
-      }
-      return date_arr;
-    }
-
-    var oldPacking = DateConverter.packStartDates(startDates);
-    var newPacking = DateConverter.packStartDates(newDateArray);
-    var anyEventsChanged = oldPacking != newPacking;
-
-    if (anyEventsChanged) {
-      // update startDates array + update localStorage
-      startDates.length = 0;
-      newDateArray.forEach(function(x) {startDates.push(x);});
-      DateConverter.overwriteLocalStorageDates(newDateArray);
-
-      // regenerate milestones+update
-      generateMilestones();
-
-      // remove events panel
-      eventsPanel.parentNode.removeChild(eventsPanel);
-
-      // regenerate events panel
-      filterPanel.addSubpanel("Event", startDates, function(start_date, stone) {
-        return stone.start_date === start_date;
-      });
-      addEditEventsLink();
-    }
-  }
-
-  function addEditEventsLink() {
-    // Link at the bottom of events panel to start editing
-    var buttonRow = document.createElement('div');
-    buttonRow.className = "buttonRow";
-    var eventsPanel = document.getElementById('events_panel');
-    var optionsSection = eventsPanel.getElementsByTagName('div')[0];
-    var editLink = document.createElement('a');
-    editLink.className = "editEventsLink pillButton";
-    editLink.textContent = 'Add Events';
-    editLink.onclick = showEventsEditor;
-    optionsSection.appendChild(buttonRow);
-    buttonRow.appendChild(editLink);
-  }
-
-  function wireUpEventsEditor() {
-    // Link at the bottom of events panel to start editing
-    addEditEventsLink();
-
-    var eventsPanel = document.getElementById('events_panel');
-
-    // Edit panel
-    var editPanel = document.createElement('div');
-    editPanel.id = "editPanel";
-    editPanel.style.display = "none";
-    var editHeader = document.createElement('h4');
-    editHeader.textContent = "Edit Events";
-    editHeader.className = "filterHeading";
-    editPanel.appendChild(editHeader);
-    var editor = document.createElement("div");
-    editor.id = "editPanelInner";
-    editPanel.appendChild(editor);
-    eventsPanel.parentNode.insertBefore(editPanel, eventsPanel);
-
-    // Link at bottom of edit panel to stop editing
-    var buttonRow = document.createElement('div');
-    buttonRow.className = "buttonRow";
-    var stopEditLink = document.createElement('a');
-    stopEditLink.className = "editEventsLink pillButton";
-    stopEditLink.textContent = 'Done';
-    stopEditLink.onclick = hideEventsEditor;
-    editPanel.appendChild(buttonRow);
-    buttonRow.appendChild(stopEditLink);
-  }
-
   // Initialization
   startDates = DateConverter.getStartDates();
   wireUpFilterPanel();
   InfiniteScroll.wireUpInfiniteScroll();
-  wireUpEventsEditor();
+
+  EventsEditor.initialize(startDates, DateConverter, generateMilestones, filterPanel);
   MilestoneGenerator.initialize(results, startDates);
   InfiniteScroll.initialize(results, filterPanel);
+
   generateMilestones();
-  // previous call was async; careful adding stuff here.
+  // previous call was async, so be careful adding stuff here.
+
 });
 
