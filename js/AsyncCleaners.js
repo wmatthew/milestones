@@ -62,11 +62,8 @@ define(function(require) {
 
     var earlierElt = document.getElementById("earlier_results");
     var laterElt = document.getElementById("later_results");
-
     earlierElt.style.display = hiddenEarlyResultsCount ? 'block' : 'none';
     laterElt.style.display = hiddenLateResultsCount ? 'block' : 'none';
-
-    // TODO: hook/unhook the onscroll event.
   }
 
   // If multiple milestones share a header, hide the all but the first instance. This makes the
@@ -77,7 +74,7 @@ define(function(require) {
       if (result.is_visible()) {
         var currentElementHeader = result.html_element.firstChild;
         var repeatHeader = previousVisibleHeader && (currentElementHeader.textContent == previousVisibleHeader.textContent);
-        // if (repeatHeader && currentElementHeader.style.display == 'block') console.log('hide repeat header');
+        // if (repeatHeader && currentElementHeader.style.display == 'block') console.log('hide repeat header'); // debug
         currentElementHeader.style.display = repeatHeader ? 'none' : 'block';
         previousVisibleHeader = currentElementHeader;
       }

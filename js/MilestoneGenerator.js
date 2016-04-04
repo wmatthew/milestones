@@ -183,8 +183,6 @@ define(function(require) {
     loadingCount = document.createElement("div");
     updateLoadingCount();
     resultsContainer.appendChild(loadingCount);
-
-    // TODO: show spinner
   }
 
   function updateLoadingCount() {

@@ -129,7 +129,7 @@ define(function(require) {
   //================================================================================================
   // Show Earlier Async
   function showEarlierAsync() {
-    var numToReveal = 10; // TODO: one month's worth?
+    var numToReveal = 10; // TODO: change this to reveal one month's worth of events?
     var newly_revealed = 0;
     var previousElement = false; // temporally before, but lower in display order
 
@@ -222,6 +222,7 @@ define(function(require) {
     elt.stop();
   };
 
+  // Get a CSS-only spinner element
   function getSpinner() {
     var spin = document.createElement("div");
     spin.className = "sk-circle";

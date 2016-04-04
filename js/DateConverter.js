@@ -30,6 +30,7 @@ define(function(require) {
     return resultDates;
   }
 
+  // Convert a date from date+label to object
   DateConverter.toHash = function(date, label) {
     label = label.replace('&','').replace('?','').replace('=','');
     var dateText = label + " (" + dateFormat(date, "mmm dS, yyyy") + ")";
@@ -40,6 +41,7 @@ define(function(require) {
     };
   }
 
+  // Convert from array of objects to URL format
   DateConverter.packStartDates = function(date_arr) {
     var packed = date_arr.map(function(d) {
       return d.shortLabel + "=" + dateFormat(d.value, "yyyy-mm-dd");
