@@ -112,7 +112,7 @@ define(function(require) {
   Milestone.sequenceMilestone = function(start_date, time_unit, magnitude, direction_value, sequence) {
     if (magnitude.exponent <= 1 || magnitude.exponent >= 9) {
       return false; // too short/long for a sequence.
-    } else if (sequence === FilterConstants.TwoDigitPrefix.NO_SEQUENCE) {
+    } else if (sequence === FilterConstants.Sequence.NO_SEQUENCE) {
       return false; // need a sequence.
     } else {
       var stone = new Milestone(
@@ -123,7 +123,7 @@ define(function(require) {
         FilterConstants.Base.TEN,
         FilterConstants.RepeatingDigit.NONE,
         FilterConstants.TwoDigitPrefix.NO_PREFIX,
-        FilterConstants.Sequence.NO_SEQUENCE,
+        sequence,
         FilterConstants.Kind.SEQUENCE);
       return stone;
     }

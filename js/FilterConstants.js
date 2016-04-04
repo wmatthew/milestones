@@ -97,16 +97,8 @@ define(function(require) {
 
   // values are milliseconds
 	FilterConstants.TimeUnit = {
-		MICROSECONDS : {
-			text: 'microsecond',
-			value: 0.001 ,
-			weight: 2
-		},
-		MILLISECONDS : {
-			text: 'millisecond',
-			value: 1 ,
-			weight: 3
-		},
+		// I tried MILLISECONDS and MICROSECONDS, but every event generated was a repeat of SECONDS
+		// events, which made for uninteresting results.
 		SECONDS : {
 			text: 'second',
 			value: 1000 ,
