@@ -12,10 +12,12 @@ define(function(require) {
   // Class variables
   var results;
   var startDates;
+  var regenerating = false;
 
   // DOM elements
   var resultsContainer = document.getElementById("results_container");
   var resultsHeader = document.getElementById("results_header");
+  var resultCount = document.getElementById("result_count");
   var loadingCount;
 
   MilestoneGenerator.initialize = function(res_arr, start_dates) {
@@ -42,9 +44,23 @@ define(function(require) {
     }
   }
 
+  function initialClean() {
+    clearOldMilestones();
+    resultsHeader.textContent = "Loading...";
+    document.getElementById("earlier_results").style.display = 'none';
+    document.getElementById("later_results").style.display = 'none';
+    result_count.textContent = "";
+  }
+
   MilestoneGenerator.generate = function(updateMethod) {
+    if (regenerating) {
+      console.log("warn - tried to regenerate when already regenerating");
+      return;
+    }
+    regenerating = true;
+
     asyncChain([
-      clearOldMilestones,
+      initialClean,
       startLoadingProgress,
       generateRepeats,
       generateTwoPrefixes,
@@ -75,7 +91,8 @@ define(function(require) {
 
   function reportCompletion() {
     console.log("Generated " + results.length + " milestones.");
-    resultsHeader.textContent = "Results"; // replaces 'loading...'
+    resultsHeader.textContent = "Results";
+    regenerating = false;
   }
 
   // Sequences: (12345, 54321). base 10 only.
@@ -171,7 +188,7 @@ define(function(require) {
   }
 
   function showLoadingUpdate(message) {
-    console.log("Loading: " + message);
+    //console.log("Loading: " + message);
     var msg = document.createElement("div");
     msg.textContent = message + '...';
     resultsContainer.appendChild(msg);

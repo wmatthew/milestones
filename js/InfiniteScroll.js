@@ -51,8 +51,6 @@ define(function(require) {
     var newly_revealed = 0;
 
     var minResultsShown = 50;
-    var earlierExist = false;
-    var laterExist = false;
     var previousElement = false;
 
     for (var result of results) {
@@ -74,8 +72,6 @@ define(function(require) {
 
       // end-of-loop bookkeeping
       result.set_visible(filterVisible);
-      earlierExist = earlierExist || (filterVisible && !afterStart);
-      laterExist = laterExist || (filterVisible && !showMore);
       if (filterVisible) found_count ++;
       if (result.html_element) {
         previousElement = result.html_element;
@@ -92,8 +88,6 @@ define(function(require) {
     }
 
     // post-loop bookkeeping
-    document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
-    document.getElementById("later_results").style.display = laterExist ? 'block' : 'none';
     AsyncCleaners.cleanUp();
   };
 
@@ -117,7 +111,7 @@ define(function(require) {
   }
 
   function showLaterNode(node) {
-    console.log("show later");
+    console.log("show more...");
     node.spin();
     var numToReveal = 50;
     setTimeout(function() {
@@ -186,6 +180,7 @@ define(function(require) {
     resultsContainer.parentNode.appendChild(showLater);
 
     function isVisible(elem) {
+      if (elem.style.display == 'none') return false;
       var windowBottom = window.scrollY + window.innerHeight;
       var margin = 600;
       var eltPos = elem.offsetTop - margin;

@@ -29,8 +29,44 @@ define(function(require) {
     setTimeout(function() {
       fixPartials();
       hideRepeatedHeaders();
+      updateVisibleCount();
+      showOrHideMoreButtons();
     }, 0);
-    setTimeout(updateVisibleCount, 0);
+  }
+
+  // Show 'show earlier'/'show more' buttons only when there's more to see.
+  // Also unhook the onscroll event if there's not more to see.
+  function showOrHideMoreButtons() {
+    var seenVisibleYet = false;
+    var hiddenEarlyResultsCount = 0;
+    var hiddenLateResultsCount = 0;
+
+    for (var result of results) {
+      var visible = result.is_visible();
+      if (visible) {
+        seenVisibleYet = true;
+      }
+      if (!isHiddenByFilters(result) && !visible) {
+        if (!seenVisibleYet) {
+          // hidden results that are before the first visible result.
+          hiddenEarlyResultsCount++;
+        } else {
+          // these late results might not actually be after the last visible entry, but that's okay.
+          // the 'show more' button at the end also serves to fill in gaps.
+          hiddenLateResultsCount++;
+        }
+      }
+    }
+
+    console.log("Hidden Counts: " + hiddenEarlyResultsCount + ", " + hiddenLateResultsCount);
+
+    var earlierElt = document.getElementById("earlier_results");
+    var laterElt = document.getElementById("later_results");
+
+    earlierElt.style.display = hiddenEarlyResultsCount ? 'block' : 'none';
+    laterElt.style.display = hiddenLateResultsCount ? 'block' : 'none';
+
+    // TODO: hook/unhook the onscroll event.
   }
 
   // If multiple milestones share a header, hide the all but the first instance. This makes the
@@ -41,7 +77,7 @@ define(function(require) {
       if (result.is_visible()) {
         var currentElementHeader = result.html_element.firstChild;
         var repeatHeader = previousVisibleHeader && (currentElementHeader.textContent == previousVisibleHeader.textContent);
-        if (repeatHeader && currentElementHeader.style.display == 'block') console.log('hide repeat header');
+        // if (repeatHeader && currentElementHeader.style.display == 'block') console.log('hide repeat header');
         currentElementHeader.style.display = repeatHeader ? 'none' : 'block';
         previousVisibleHeader = currentElementHeader;
       }
@@ -113,6 +149,7 @@ define(function(require) {
     } else {
       resultCount.textContent = visible_count + " shown (" + results.length + " total)";
     }
+    console.log("Now showing " + visible_count + " / " + results.length);
   }
 
   return AsyncCleaners;
