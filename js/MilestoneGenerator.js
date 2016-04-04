@@ -49,7 +49,7 @@ define(function(require) {
     resultsHeader.textContent = "Loading...";
     document.getElementById("earlier_results").style.display = 'none';
     document.getElementById("later_results").style.display = 'none';
-    result_count.textContent = "";
+    resultCount.textContent = "";
   }
 
   MilestoneGenerator.generate = function(updateMethod) {
