@@ -27,7 +27,7 @@ define(function(require) {
   	earliestShown = new Date();
     earliestShown.setHours(0,0,0,0);
   	AsyncCleaners.initialize(results, InfiniteScroll.isHiddenByFilters);
-  }
+  };
 
   InfiniteScroll.isHiddenByFilters = function(result) {
     var all_checkboxes = filterPanel.getAllCheckboxes();
@@ -37,7 +37,64 @@ define(function(require) {
       }
     }
     return false;
-  }
+  };
+
+  //================================================================================================
+  // Show Later Async
+
+  // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
+  InfiniteScroll.updateResults = function(numToReveal = 0) {
+    var all_checkboxes = filterPanel.getAllCheckboxes();
+    var visible_count = 0; // number of user-visible results
+    var found_count = 0; // max the user could see with these filter options
+    var newly_revealed = 0;
+
+    var minResultsShown = 50;
+    var earlierExist = false;
+    var laterExist = false;
+    var previousElement = false;
+
+    for (var result of results) {
+      var filterVisible = !InfiniteScroll.isHiddenByFilters(result);
+      var afterStart = result.end_date >= earliestShown;
+      var showMore = visible_count < minResultsShown;
+      var revealMore = newly_revealed < numToReveal;
+
+      if (filterVisible && afterStart && (showMore || revealMore)) {
+        if (!result.is_visible()) {
+          newly_revealed ++;
+        }
+        if (!result.html_element) {
+          var resNode = result.getOrCreateElement();
+          insertAfterChild(resultsContainer, previousElement, result.html_element);
+        }
+        visible_count++;
+      }
+
+      // end-of-loop bookkeeping
+      result.set_visible(filterVisible);
+      earlierExist = earlierExist || (filterVisible && !afterStart);
+      laterExist = laterExist || (filterVisible && !showMore);
+      if (filterVisible) found_count ++;
+      if (result.html_element) {
+        previousElement = result.html_element;
+      }
+    }
+
+    // TODO: defined in 2 places. consolidate, move to a util class
+    function insertAfterChild(parent, sibling, newNode) {
+      if (sibling) {
+        parent.insertBefore(newNode, sibling.nextSibling);
+      } else {
+        parent.appendChild(newNode);
+      }
+    }
+
+    // post-loop bookkeeping
+    document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
+    document.getElementById("later_results").style.display = laterExist ? 'block' : 'none';
+    AsyncCleaners.cleanUp();
+  };
 
   //================================================================================================
   // Event handling functions
@@ -111,63 +168,6 @@ define(function(require) {
   }
 
   //================================================================================================
-  // Show Earlier Async
-
-  // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
-  InfiniteScroll.updateResults = function(numToReveal = 0) {
-    var all_checkboxes = filterPanel.getAllCheckboxes();
-    var visible_count = 0; // number of user-visible results
-    var found_count = 0; // max the user could see with these filter options
-    var newly_revealed = 0;
-
-    var minResultsShown = 50;
-    var earlierExist = false;
-    var laterExist = false;
-    var previousElement = false;
-
-    for (var result of results) {
-      var filterVisible = !InfiniteScroll.isHiddenByFilters(result);
-      var afterStart = result.end_date >= earliestShown;
-      var showMore = visible_count < minResultsShown;
-      var revealMore = newly_revealed < numToReveal;
-
-      if (filterVisible && afterStart && (showMore || revealMore)) {
-        if (!result.is_visible()) {
-          newly_revealed ++;
-        }
-        if (!result.html_element) {
-          var resNode = result.getOrCreateElement();
-          insertAfterChild(resultsContainer, previousElement, result.html_element);
-        }
-        visible_count++;
-      }
-
-      // end-of-loop bookkeeping
-      result.set_visible(filterVisible);
-      earlierExist = earlierExist || (filterVisible && !afterStart);
-      laterExist = laterExist || (filterVisible && !showMore);
-      if (filterVisible) found_count ++;
-      if (result.html_element) {
-        previousElement = result.html_element;
-      }
-    }
-
-    // TODO: defined in 2 places. consolidate, move to a util class
-    function insertAfterChild(parent, sibling, newNode) {
-      if (sibling) {
-        parent.insertBefore(newNode, sibling.nextSibling);
-      } else {
-        parent.appendChild(newNode);
-      }
-    }
-
-    // post-loop bookkeeping
-    document.getElementById("earlier_results").style.display = earlierExist ? 'block' : 'none';
-    document.getElementById("later_results").style.display = laterExist ? 'block' : 'none';
-    AsyncCleaners.cleanUp();
-  }
-
-  //================================================================================================
   // Run before initialization
   InfiniteScroll.wireUpInfiniteScroll = function() {
     var showEarlier = document.createElement("div");
@@ -196,7 +196,7 @@ define(function(require) {
         showLaterNode(showLater);
       }
     }
-  }
+  };
 
   function addLabelAndSpinner(elt, labelText) {
     var label = document.createElement("p");
@@ -217,7 +217,7 @@ define(function(require) {
     }
 
     elt.stop();
-  }
+  };
 
   function getSpinner() {
     var spin = document.createElement("div");
