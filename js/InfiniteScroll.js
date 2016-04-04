@@ -150,15 +150,14 @@ define(function(require) {
       if (result.html_element) {
         previousElement = result.html_element;
       }
+    }
 
-      // Helper subfunctions
-      // TODO: defined in 2 places. consolidate, move to a util class
-      function insertAfterChild(parent, sibling, newNode) {
-        if (sibling) {
-          parent.insertBefore(newNode, sibling.nextSibling);
-        } else {
-          parent.appendChild(newNode);
-        }
+    // TODO: defined in 2 places. consolidate, move to a util class
+    function insertAfterChild(parent, sibling, newNode) {
+      if (sibling) {
+        parent.insertBefore(newNode, sibling.nextSibling);
+      } else {
+        parent.appendChild(newNode);
       }
     }
 
