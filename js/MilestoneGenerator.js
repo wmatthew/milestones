@@ -52,6 +52,10 @@ define(function(require) {
     resultCount.textContent = "";
   }
 
+  MilestoneGenerator.isBusy = function() {
+    return regenerating;
+  }
+
   MilestoneGenerator.generate = function(updateMethod) {
     if (regenerating) {
       console.log("warn - tried to regenerate when already regenerating");

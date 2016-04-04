@@ -32,7 +32,7 @@ define(function(require) {
 
   EventsEditor.initialize(startDates, DateConverter, generateMilestones, filterPanel);
   MilestoneGenerator.initialize(results, startDates);
-  InfiniteScroll.initialize(results, filterPanel);
+  InfiniteScroll.initialize(results, filterPanel, MilestoneGenerator.isBusy);
 
   generateMilestones();
   // previous call was async, so be careful adding stuff here.

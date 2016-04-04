@@ -15,14 +15,16 @@ define(function(require) {
   // Functions
   var showEarlierNode;
   var filterPanel;
+  var generatorIsBusy;
 
   // DOM nodes
   var resultsContainer = document.getElementById("results_container");
 
   // Initialization. Should be repeatable.
-  InfiniteScroll.initialize = function(results_arr, fpanel) {
+  InfiniteScroll.initialize = function(results_arr, fpanel, is_busy) {
   	results = results_arr;
   	filterPanel = fpanel;
+    generatorIsBusy = is_busy;
 
   	earliestShown = new Date();
     earliestShown.setHours(0,0,0,0);
@@ -44,6 +46,11 @@ define(function(require) {
 
   // After a filter has been toggled, update results (change visibility of Milestone elts + headers)
   InfiniteScroll.updateResults = function(numToReveal) {
+    if (generatorIsBusy()) {
+      console.log("skipping update - generator is busy right now.");
+      return;
+    }
+
     numToReveal = numToReveal ||  0;
     var all_checkboxes = filterPanel.getAllCheckboxes();
     var visible_count = 0; // number of user-visible results
