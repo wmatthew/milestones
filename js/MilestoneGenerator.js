@@ -25,33 +25,6 @@ define(function(require) {
     startDates = start_dates;
   }
 
-  function addMilestone(stone) {
-    if (stone && stone.valid) {
-      results.push(stone);
-    }
-  }
-
-  // Clear existing milestones (results) and DOM elements
-  function clearOldMilestones() {
-    clearResultsContainer();
-    results.length = 0;
-  }
-
-  // Clear messages from MilestoneGenerator / DOM elements from past Milestones
-  function clearResultsContainer() {
-    while(resultsContainer.firstChild) {
-      resultsContainer.removeChild(resultsContainer.firstChild);
-    }
-  }
-
-  function initialClean() {
-    clearOldMilestones();
-    resultsHeader.textContent = "Loading...";
-    document.getElementById("earlier_results").style.display = 'none';
-    document.getElementById("later_results").style.display = 'none';
-    resultCount.textContent = "";
-  }
-
   MilestoneGenerator.isBusy = function() {
     return regenerating;
   }
@@ -78,11 +51,7 @@ define(function(require) {
       ]);
   }
 
-  function sortGeneratedResults() {
-    showLoadingUpdate("Sorting");
-    results.sort(function(a,b) {return a.end_date - b.end_date}); // earliest date first
-  }
-
+  // Run a list of functions. Use setTimeout so UI updates as we go.
   function asyncChain(functions) {
     var func = functions.shift();
     if (func) {
@@ -91,6 +60,44 @@ define(function(require) {
         asyncChain(functions);
       }, 200);
     }
+  }
+
+  function initialClean() {
+    clearOldMilestones();
+    resultsHeader.textContent = "Loading...";
+    document.getElementById("earlier_results").style.display = 'none';
+    document.getElementById("later_results").style.display = 'none';
+    resultCount.textContent = "";
+  }
+
+  function startLoadingProgress() {
+    loadingCount = document.createElement("div");
+    updateLoadingCount();
+    resultsContainer.appendChild(loadingCount);
+  }
+
+  function addMilestone(stone) {
+    if (stone && stone.valid) {
+      results.push(stone);
+    }
+  }
+
+  // Clear existing milestones (results) and DOM elements
+  function clearOldMilestones() {
+    clearResultsContainer();
+    results.length = 0;
+  }
+
+  // Clear messages from MilestoneGenerator / DOM elements from past Milestones
+  function clearResultsContainer() {
+    while(resultsContainer.firstChild) {
+      resultsContainer.removeChild(resultsContainer.firstChild);
+    }
+  }
+
+  function sortGeneratedResults() {
+    showLoadingUpdate("Sorting");
+    results.sort(function(a,b) {return a.end_date - b.end_date}); // earliest date first
   }
 
   function reportCompletion() {
@@ -177,12 +184,6 @@ define(function(require) {
         }
       }
     }
-  }
-
-  function startLoadingProgress() {
-    loadingCount = document.createElement("div");
-    updateLoadingCount();
-    resultsContainer.appendChild(loadingCount);
   }
 
   function updateLoadingCount() {
