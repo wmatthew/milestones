@@ -52,11 +52,11 @@ define(function(require) {
   }();
 
   FilterConstants.Kind = {
-  	REPEAT: { text: 'repeating', example: '7777'},
-  	PREFIX_TWO: { text: 'round number', example: '7800'},
-  	PREFIX_ONE: { text: 'very round number', example: '7000'},
-  	POWER_OF_TEN: { text: 'power of ten', example: '1000'},
-  	SEQUENCE:   { text: 'sequence', example: '1234'},
+  	REPEAT: { text: 'repeating', example: '7,777'},
+  	PREFIX_TWO: { text: 'round number', example: '7,800'},
+  	PREFIX_ONE: { text: 'very round number', example: '7,000'},
+  	POWER_OF_TEN: { text: 'power of ten', example: '1,000'},
+  	SEQUENCE:   { text: 'sequence', example: '1,234'},
   }
 
 	FilterConstants.Direction = {

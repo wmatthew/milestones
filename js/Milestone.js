@@ -215,7 +215,7 @@ define(function(require) {
           this.base === FilterConstants.Base.TEN) {
 				return this.magnitude.text; // eg, "one million"
     	} else {
-    		return Math.abs(this.rawValue); // eg, "77777"
+    		return addCommas(Math.abs(this.rawValue)); // eg, "77777"
     	}
     },
 
@@ -297,6 +297,11 @@ define(function(require) {
     is_visible: function() {
       return this.html_element && this.html_element.style.display === "block";
     }
+  }
+
+  function addCommas(num) {
+    num = num+"";
+    return num.replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   }
 
 	return Milestone;
