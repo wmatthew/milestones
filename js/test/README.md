@@ -1,4 +1,1 @@
-# Tests
-These tests use the QUnit framework.
-
-[Run tests](http://wmatthew.github.io/milestones/js/test/test.html)
+[Run tests on github.io](http://wmatthew.github.io/milestones/js/test/test.html)
