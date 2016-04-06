@@ -90,8 +90,8 @@ define(function(require) {
 
   // Create a big round number milestone like 76,000,000
   Milestone.prefixTwoMilestone = function(start_date, time_unit, magnitude, direction_value, prefix) {
-    if (magnitude === FilterConstants.Magnitude.ONE) {
-      return false; // too short for two-digit prefix.
+    if (magnitude.value <= FilterConstants.Magnitude.ONE.value) {
+      return false; // too short for two-digit prefix. Need at least one zero.
     } else if (prefix === FilterConstants.TwoDigitPrefix.NO_PREFIX) {
       return false; // need a prefix.
     } else {

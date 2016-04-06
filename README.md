@@ -16,13 +16,4 @@ Here's an example:
 
 ![](img/obama_family_example.png)
 
-[load this example] (http://wmatthew.github.io/milestones/?events=Barack%27s_Birth=1961-08-04;Michelle%27s_Birth=1964-01-17;Malia%27s_Birth=1998-07-04;Sasha%27s_Birth=2001-06-10;Obamas_Wedding=1992-10-03;Bo%27s_Birth=2015-10-09;Sunny%27s_Birth=2012-06-11)
-
-
-
-
-
-
-
-
-
+[load this example] (http://wmatthew.github.io/milestones/?events=Barack%27s_Birth=1961-08-04;Michelle%27s_Birth=1964-01-17;Malia%27s_Birth=1998-07-04;Sasha%27s_Birth=2001-06-10;Obamas%27_Wedding=1992-10-03;Bo%27s_Birth=2015-10-09;Sunny%27s_Birth=2012-06-11)

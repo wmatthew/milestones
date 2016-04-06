@@ -1,7 +1,7 @@
 "use strict";
 define(function(require) {
   // This class generates Milestones
-  // Currently 11977 milestones per event. TODO: add test to assert this?
+  // Currently ~11977 milestones per event. TODO: add test to assert this?
 
   // Imports
   var Milestone = require('Milestone');
