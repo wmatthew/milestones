@@ -77,7 +77,7 @@ define(function(require) {
 
   function updateShareLink() {
     var newDest = window.location.protocol + "//" +
-                  window.location.host + "/" +
+                  window.location.host +
                   window.location.pathname + "?" +
                   DateConverter.packStartDates(startDates);
     shareLink.textContent = 'share link';

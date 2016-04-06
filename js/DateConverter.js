@@ -70,6 +70,7 @@ define(function(require) {
   // Gather current start dates from URL, localStorage, and default dates list.
   DateConverter.getStartDates = function() {
     var dateList = [];
+    var gotAnyDatesFromURL = false;
 
     function addDate(newDate) {
       // Generous dupe policy: allow different labels on same date, different dates w same label.
@@ -83,6 +84,9 @@ define(function(require) {
     // dates from URL
     var search = decodeURI(window.location.search.substr(1));
     DateConverter.unpackStartDates(search).map(addDate);
+    if (dateList.length > 0) {
+      gotAnyDatesFromURL = true;
+    }
 
     // dates from localStorage
     if (localStorage) {
@@ -101,6 +105,16 @@ define(function(require) {
     }
 
     DateConverter.overwriteLocalStorageDates(dateList);
+
+    // redirect to simpler URL if we've stored stuff to localStorage.
+    if (gotAnyDatesFromURL) {
+      if (localStorage && localStorage.getItem('events')) {
+        var newDest = window.location.protocol + "//" +
+              window.location.host +
+              window.location.pathname
+        document.location.href = newDest;
+      }
+    }
 
     return dateList;
   }
