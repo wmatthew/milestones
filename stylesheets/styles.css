@@ -35,6 +35,18 @@ p.entry {
   margin-bottom: 0px;
 }
 
+div#share_section a::before {
+  content: "🔗";
+  margin-right: 0.5em;
+}
+
+div#share_section a {
+  display: block;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
 .noselect {
   -webkit-touch-callout: none; /* iOS Safari */
   -webkit-user-select: none;   /* Chrome/Safari/Opera */

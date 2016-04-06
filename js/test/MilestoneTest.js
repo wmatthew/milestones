@@ -105,7 +105,7 @@ define(
 
       test('Milestone.displayText', function() {
         var xmasStone = Milestone.baseMilestone(start_date, time_unit, magnitude, direction_value, base_unit);
-        equal(xmasStone.displayText(), '6:16pm: 343 minutes until XMas 2015', 'Works for basic milestone');
+        equal(xmasStone.displayText(), '6:17pm: 343 minutes until XMas 2015', 'Works for basic milestone');
 
         var threeFourStone = Milestone.prefixTwoMilestone(start_date, FilterConstants.TimeUnit.YEARS, FilterConstants.Magnitude.TEN, direction_value, FilterConstants.TwoDigitPrefix.PREFIX_34);
         equal(threeFourStone.displayText(), '34 years until XMas 2015', 'non time-specific milestone');
@@ -130,7 +130,7 @@ define(
 
       test('Milestone.displayTime', function() {
       	var xmasStone = Milestone.baseMilestone(start_date, time_unit, magnitude, direction_value, base_unit);
-        equal(xmasStone.displayTime(), '6:16pm: ', 'displays normally');
+        equal(xmasStone.displayTime(), '6:17pm: ', 'displays normally');
       });
     };
     return {run: run}

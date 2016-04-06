@@ -15,7 +15,9 @@ define(function(require) {
   // Methods
   var generateMilestones;
 
-  // DOM nodes
+  // DOM elements
+  var shareSection = document.getElementById("share_section");
+  var shareLink;
 
   // Initialization. Only called once.
   EventsEditor.initialize = function(start_dates, date_converter, gen_fn, fpanel) {
@@ -51,6 +53,36 @@ define(function(require) {
     stopEditLink.onclick = hideEventsEditor;
     editPanel.appendChild(buttonRow);
     buttonRow.appendChild(stopEditLink);
+
+    initShareLink();
+  }
+
+  function initShareLink() {
+    shareLink = document.createElement('a');
+    shareLink.textContent = "share link";
+    shareLink.onclick = showShareLink;
+    shareLink.style.display = 'none';
+    shareSection.appendChild(shareLink);
+    updateShareLink();
+  }
+
+  function showShareLink() {
+    if (shareLink.textContent == shareLink.href) {
+      shareLink.textContent = 'share link';
+    } else {
+      shareLink.textContent = shareLink.href;
+    }
+    return false;
+  }
+
+  function updateShareLink() {
+    var newDest = window.location.protocol + "//" +
+                  window.location.host + "/" +
+                  window.location.pathname + "?" +
+                  DateConverter.packStartDates(startDates);
+    shareLink.textContent = 'share link';
+    shareLink.href = newDest;
+    shareLink.style.display = startDates.length ? 'block' : 'none';
   }
 
   function showEventsEditor() {
@@ -176,6 +208,7 @@ define(function(require) {
       startDates.length = 0;
       newDateArray.forEach(function(x) {startDates.push(x);});
       DateConverter.overwriteLocalStorageDates(newDateArray);
+      updateShareLink();
 
       // regenerate milestones+update
       generateMilestones();
@@ -188,6 +221,8 @@ define(function(require) {
         return stone.start_date === start_date;
       });
       addEditEventsLink();
+    } else {
+      // no events changed; don't need to do anything special here.
     }
   }
 

@@ -1,6 +1,9 @@
 "use strict";
 define(function(require) {
 
+  require('main/BasicUtils');
+  var EventsPrefix="events=";
+
   function DateConverter() {}
 
   DateConverter.prototype = {}
@@ -10,21 +13,26 @@ define(function(require) {
     var resultDates = [];
 
     for (var chunk of query_str.split("&")) {
-      var pair = chunk.split("=");
-      if (pair.length !== 2) {
-        continue;
+      if (chunk.startsWith(EventsPrefix)) {
+        chunk = chunk.substr(EventsPrefix.length);
+        for (var subchunk of chunk.split(';')) {
+          var pair = subchunk.split("=");
+          if (pair.length !== 2) {
+            continue;
+          }
+
+          var label = pair[0].replaceAll('_', ' ');
+          var dateParts = pair[1].split("-"); // YYYY-MM-DD format only
+          var date = new Date(dateParts[0], dateParts[1]-1, dateParts[2]);
+
+          if (isNaN(date)) {
+            console.log("dropping invalid date: " + chunk);
+            continue;
+          }
+
+          resultDates.push(DateConverter.toHash(date, label));
+        }
       }
-
-      var label = pair[0].split("_").join(" ");
-      var dateParts = pair[1].split("-"); // YYYY-MM-DD format only
-      var date = new Date(dateParts[0], dateParts[1]-1, dateParts[2]);
-
-      if (isNaN(date)) {
-        console.log("dropping invalid date: " + chunk);
-        continue;
-      }
-
-      resultDates.push(DateConverter.toHash(date, label));
     }
 
     return resultDates;
@@ -32,7 +40,10 @@ define(function(require) {
 
   // Convert a date from date+label to object
   DateConverter.toHash = function(date, label) {
-    label = label.replace('&','').replace('?','').replace('=','');
+    if (isNaN(date)) {
+      return false;
+    }
+    label = label.replaceAll('&','').replaceAll('?','').replaceAll('=','').replaceAll(';','');
     var dateText = label + " (" + dateFormat(date, "mmm dS, yyyy") + ")";
     return {
       value: date,
@@ -44,9 +55,10 @@ define(function(require) {
   // Convert from array of objects to URL format
   DateConverter.packStartDates = function(date_arr) {
     var packed = date_arr.map(function(d) {
-      return d.shortLabel + "=" + dateFormat(d.value, "yyyy-mm-dd");
-    }).join("&");
-    return packed;
+      var packedLabel = d.shortLabel.replaceAll(' ', '_');
+      return packedLabel + "=" + dateFormat(d.value, "yyyy-mm-dd");
+    }).join(";");
+    return EventsPrefix+packed;
   }
 
   DateConverter.overwriteLocalStorageDates = function(dateList) {
@@ -55,6 +67,7 @@ define(function(require) {
     }
   }
 
+  // Gather current start dates from URL, localStorage, and default dates list.
   DateConverter.getStartDates = function() {
     var dateList = [];
 
@@ -68,7 +81,7 @@ define(function(require) {
     }
 
     // dates from URL
-    var search = window.location.search.substr(1);
+    var search = decodeURI(window.location.search.substr(1));
     DateConverter.unpackStartDates(search).map(addDate);
 
     // dates from localStorage
@@ -81,10 +94,10 @@ define(function(require) {
 
     // Result page doesn't look good empty. Add an event so there's something to see.
     if (dateList.length == 0) {
-      DateConverter.unpackStartDates("Christmas_2016=2016-12-25").map(addDate);
-      DateConverter.unpackStartDates("Obama's Birth=1961-08-04").map(addDate);
-      DateConverter.unpackStartDates("Elizabeth II's Birth=1926-04-21").map(addDate);
-      DateConverter.unpackStartDates("Bastille Day=1789-07-14").map(addDate);
+      DateConverter.unpackStartDates("events=Christmas_2016=2016-12-25").map(addDate);
+      DateConverter.unpackStartDates("events=Obama's Birth=1961-08-04").map(addDate);
+      DateConverter.unpackStartDates("events=Elizabeth II's Birth=1926-04-21").map(addDate);
+      DateConverter.unpackStartDates("events=Bastille Day=1789-07-14").map(addDate);
     }
 
     DateConverter.overwriteLocalStorageDates(dateList);

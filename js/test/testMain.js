@@ -18,11 +18,12 @@ require.config({
 
 // require the unit tests.
 require(
-    ['QUnit', 'MilestoneTest', 'FilterConstantsTest'],
-    function(QUnit, milestoneTest, filterConstantsTest) {
+    ['QUnit', 'MilestoneTest', 'FilterConstantsTest', 'DateConverterTest'],
+    function(QUnit, milestoneTest, filterConstantsTest, dateConverterTest) {
         // run the tests.
         milestoneTest.run();
         filterConstantsTest.run();
+        dateConverterTest.run();
 
         // start QUnit.
         QUnit.load();

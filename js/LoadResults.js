@@ -2,6 +2,7 @@
 define(function(require) {
 
   // Imports
+  require('BasicUtils');
   var Milestone = require('Milestone');
   var DateConverter = require('DateConverter');
   var FilterPanel = require('FilterPanel');
