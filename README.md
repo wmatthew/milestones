@@ -7,7 +7,7 @@ Or your house is 22,222 days old?
 
 Milestones helps you find reasons to celebrate. It searches tons of combinations of time units and numbers and shows you interesting things that are coming up. Sometimes there are dozens in the next week.
 
-<a href="http://wmatthew.github.io/milestones" target="_blank">![](img/try_it_button.png)</a>
+![http://wmatthew.github.io/milestones](img/try_it_button.png)
 
 ## Tips
 Milestones works best if you enter a bunch of dates you care about. Try birthdays, dating/wedding anniversaries, pet birthdays, moving days and other life events.
