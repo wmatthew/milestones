@@ -1,7 +1,7 @@
 # Milestones
 You probably don't have a birthday this week, but maybe you're turning *one billion* seconds old. Isn't that worth celebrating?
 
-Or maybe it's your 12,345 month anniversary?
+Or maybe it's your 12,345 hour anniversary?
 
 Or your house is 22,222 days old?
 
