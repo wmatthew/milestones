@@ -71,6 +71,7 @@ define(function(require) {
   DateConverter.getStartDates = function() {
     var dateList = [];
     var gotAnyDatesFromURL = false;
+    var redirectToSimpleUrl = false;
 
     function addDate(newDate) {
       // Generous dupe policy: allow different labels on same date, different dates w same label.
@@ -80,6 +81,11 @@ define(function(require) {
         dateList.push(newDate);
       }
     }
+
+    // TODO:
+    // if (r=1 GET param is set) {
+    //   redirectToSimpleUrl = true;
+    // }
 
     // dates from URL
     var search = decodeURI(window.location.search.substr(1));
@@ -106,8 +112,8 @@ define(function(require) {
 
     DateConverter.overwriteLocalStorageDates(dateList);
 
-    // redirect to simpler URL if we've stored stuff to localStorage.
-    if (gotAnyDatesFromURL) {
+    // redirect to a simpler URL if we've stored events from GET params to localStorage.
+    if (gotAnyDatesFromURL && redirectToSimpleUrl) {
       if (localStorage && localStorage.getItem('events')) {
         var newDest = window.location.protocol + "//" +
               window.location.host +
